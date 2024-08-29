@@ -1,0 +1,40 @@
+/* style.css */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    background-color: #f0f0f0;
+}
+
+#board {
+    display: flex;
+    gap: 20px;
+}
+
+.column {
+    background-color: #e2e2e2;
+    padding: 10px;
+    width: 250px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+}
+
+.column-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.card {
+    background-color: #fff;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    cursor: move;
+}
+
+.card:last-child {
+    margin-bottom: 0;
+}
