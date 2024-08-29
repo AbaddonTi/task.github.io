@@ -3,27 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Tracker</title>
+    <title>Trello-like Task Tracker</title>
     <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.7.2/dragula.min.css">
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f5f7;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
         .board {
             display: flex;
             justify-content: space-around;
-            margin: 20px;
+            width: 90%;
+            max-width: 1200px;
         }
         .column {
-            width: 30%;
-            padding: 10px;
-            background-color: #f1f1f1;
+            background-color: #ebecf0;
             border-radius: 5px;
+            padding: 10px;
+            width: 30%;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        .column h3 {
+            margin: 0;
+            margin-bottom: 10px;
+            font-size: 1.2em;
         }
         .task {
-            padding: 10px;
-            margin: 5px 0;
-            background-color: #ffffff;
+            background-color: #fff;
             border-radius: 3px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
             cursor: move;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .add-task-btn {
+            background-color: #0079bf;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -31,38 +62,71 @@
     <div class="board">
         <div class="column" id="todo">
             <h3>To Do</h3>
+            <!-- Задачи появятся здесь -->
+            <button class="add-task-btn" onclick="addTask('todo')">+ Add Task</button>
         </div>
         <div class="column" id="inprogress">
             <h3>In Progress</h3>
+            <!-- Задачи появятся здесь -->
+            <button class="add-task-btn" onclick="addTask('inprogress')">+ Add Task</button>
         </div>
         <div class="column" id="done">
             <h3>Done</h3>
+            <!-- Задачи появятся здесь -->
+            <button class="add-task-btn" onclick="addTask('done')">+ Add Task</button>
         </div>
     </div>
 
     <script>
-        grist.ready({requiredAccess: 'read table'});
-
-        grist.onRecords(function(records) {
-            // Очистить колонки перед обновлением
-            document.getElementById('todo').innerHTML = '<h3>To Do</h3>';
-            document.getElementById('inprogress').innerHTML = '<h3>In Progress</h3>';
-            document.getElementById('done').innerHTML = '<h3>Done</h3>';
-
+        grist.ready({requiredAccess: 'full document'});
+        
+        grist.onRecords(async function(records) {
+            clearColumns();
             records.forEach(record => {
-                let taskElement = document.createElement('div');
-                taskElement.className = 'task';
-                taskElement.innerText = record.TaskName;
-
-                if (record.Status === 'To Do') {
-                    document.getElementById('todo').appendChild(taskElement);
-                } else if (record.Status === 'In Progress') {
-                    document.getElementById('inprogress').appendChild(taskElement);
-                } else if (record.Status === 'Done') {
-                    document.getElementById('done').appendChild(taskElement);
-                }
+                createTaskElement(record);
             });
+            initializeDragAndDrop();
         });
+
+        function clearColumns() {
+            document.getElementById('todo').innerHTML = '<h3>To Do</h3><button class="add-task-btn" onclick="addTask(\'todo\')">+ Add Task</button>';
+            document.getElementById('inprogress').innerHTML = '<h3>In Progress</h3><button class="add-task-btn" onclick="addTask(\'inprogress\')">+ Add Task</button>';
+            document.getElementById('done').innerHTML = '<h3>Done</h3><button class="add-task-btn" onclick="addTask(\'done\')">+ Add Task</button>';
+        }
+
+        function createTaskElement(record) {
+            let taskElement = document.createElement('div');
+            taskElement.className = 'task';
+            taskElement.draggable = true;
+            taskElement.innerText = record.TaskName;
+            taskElement.setAttribute('data-id', record.id);
+
+            if (record.Status === 'To Do') {
+                document.getElementById('todo').appendChild(taskElement);
+            } else if (record.Status === 'In Progress') {
+                document.getElementById('inprogress').appendChild(taskElement);
+            } else if (record.Status === 'Done') {
+                document.getElementById('done').appendChild(taskElement);
+            }
+        }
+
+        function initializeDragAndDrop() {
+            let drake = dragula([document.getElementById('todo'), document.getElementById('inprogress'), document.getElementById('done')]);
+
+            drake.on('drop', function(el, target, source, sibling) {
+                let taskId = el.getAttribute('data-id');
+                let newStatus = target.id;
+
+                grist.docApi.updateRecords('Tasks', [{id: taskId, fields: {Status: newStatus}}]);
+            });
+        }
+
+        function addTask(status) {
+            let taskName = prompt('Enter task name:');
+            if (taskName) {
+                grist.docApi.addRecords('Tasks', [{TaskName: taskName, Status: status}]);
+            }
+        }
     </script>
 </body>
 </html>
