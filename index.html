@@ -2,32 +2,20 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Упрощенная таблица</title>
-  <!-- Подключение стилей Handsontable -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css">
+  <title>Упрощенная таблица с Jspreadsheet</title>
+  <!-- Подключение стилей Jspreadsheet -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jspreadsheet-ce/dist/jspreadsheet.css">
 </head>
 <body>
-  <div id="example"></div>
+  <div id="spreadsheet"></div>
 
-  <!-- Подключение HyperFormula -->
-  <script src="https://cdn.jsdelivr.net/npm/hyperformula/dist/hyperformula.full.min.js"></script>
-  <!-- Подключение Handsontable -->
-  <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+  <!-- Подключение Jspreadsheet -->
+  <script src="https://cdn.jsdelivr.net/npm/jspreadsheet-ce/dist/jspreadsheet.js"></script>
   <!-- Инициализация таблицы -->
   <script>
-    // Создаем экземпляр HyperFormula
-    const hyperformulaInstance = HyperFormula.buildEmpty();
-
-    // Инициализируем Handsontable с поддержкой формул
-    const container = document.getElementById('example');
-    const hot = new Handsontable(container, {
-      data: Handsontable.helper.createSpreadsheetData(10, 10),
-      rowHeaders: true,
-      colHeaders: true,
-      formulas: {
-        engine: hyperformulaInstance,
-      },
-      licenseKey: 'non-commercial-and-evaluation' // Лицензионный ключ для некоммерческого использования
+    jspreadsheet(document.getElementById('spreadsheet'), {
+      data: [[]],
+      minDimensions: [10, 10],
     });
   </script>
 </body>
