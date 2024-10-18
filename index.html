@@ -3,144 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Sheet Replica</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        table, th, td {
-            border: 1px solid black;
-        }
-
-        th, td {
-            padding: 8px;
-            text-align: center;
-        }
-
-        th {
-            background-color: #d9ead3;
-        }
-
-        .input-cell {
-            width: 80px;
-            background-color: #fff;
-        }
-
-        .highlight-blue {
-            color: blue;
-        }
-
-        .highlight-black {
-            color: black;
-            font-weight: bold;
-        }
-
-        .highlight-red {
-            background-color: #f28b82;
-        }
-
-        .readonly-cell {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-    </style>
+    <title>Luckysheet Example on GitHub Pages</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/css/pluginsCss.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/plugins.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet/dist/css/luckysheet.css">
 </head>
 <body>
-    <h1>Google Sheet Replica</h1>
-    <table id="sheet">
-        <thead>
-            <tr>
-                <th rowspan="2">Статья</th>
-                <th colspan="2">СовКом</th>
-                <th colspan="2">Нал</th>
-                <th colspan="2">ПСБ</th>
-                <th colspan="2">Итого наличка</th>
-                <th colspan="2">Переводы</th>
-                <th rowspan="2">Итого Процессинг</th>
-                <th rowspan="2">Консалтинг</th>
-                <th rowspan="2">Бел. треугольники</th>
-            </tr>
-            <tr>
-                <th>СБП/Телефон</th>
-                <th>Карта</th>
-                <th>СБП/Телефон</th>
-                <th>Карта</th>
-                <th>СБП/Телефон</th>
-                <th>Карта</th>
-                <th>СБП/Телефон</th>
-                <th>Карта</th>
-                <th>СБП/Телефон</th>
-                <th>Карта</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Цена закуп. карты</td>
-                <td><input type="number" class="input-cell highlight-blue" id="b5"></td>
-                <td><input type="number" class="input-cell highlight-blue" id="c5"></td>
-                <td><input type="number" class="input-cell highlight-blue" id="d5"></td>
-                <td><input type="number" class="input-cell highlight-blue" id="e5"></td>
-                <td><input type="number" class="input-cell highlight-blue" id="f5"></td>
-                <td><input type="number" class="input-cell highlight-blue" id="g5"></td>
-                <td><input type="number" class="input-cell highlight-blue" id="h5"></td>
-                <td><input type="number" class="input-cell highlight-blue" id="i5"></td>
-                <td><input type="number" class="input-cell highlight-blue" id="j5"></td>
-                <td><input type="number" class="input-cell highlight-blue" id="k5"></td>
-                <td><input type="number" class="input-cell highlight-blue" id="l5"></td>
-            </tr>
-            <tr>
-                <td>Кол-во карт</td>
-                <td><input type="number" class="input-cell" id="b6"></td>
-                <td><input type="number" class="input-cell" id="c6"></td>
-                <td><input type="number" class="input-cell" id="d6"></td>
-                <td><input type="number" class="input-cell" id="e6"></td>
-                <td><input type="number" class="input-cell" id="f6"></td>
-                <td><input type="number" class="input-cell" id="g6"></td>
-                <td><input type="number" class="input-cell" id="h6"></td>
-                <td><input type="number" class="input-cell" id="i6"></td>
-                <td><input type="number" class="input-cell" id="j6"></td>
-                <td><input type="number" class="input-cell" id="k6"></td>
-                <td><input type="number" class="input-cell" id="l6"></td>
-            </tr>
-            <tr>
-                <td>Профит с 1 карты</td>
-                <td class="readonly-cell" id="b7"></td>
-                <td class="readonly-cell" id="c7"></td>
-                <td class="readonly-cell" id="d7"></td>
-                <td class="readonly-cell" id="e7"></td>
-                <td class="readonly-cell" id="f7"></td>
-                <td class="readonly-cell" id="g7"></td>
-                <td class="readonly-cell" id="h7"></td>
-                <td class="readonly-cell" id="i7"></td>
-                <td class="readonly-cell" id="j7"></td>
-                <td class="readonly-cell" id="k7"></td>
-                <td class="readonly-cell" id="l7"></td>
-            </tr>
-            <!-- More rows can be added similarly -->
-        </tbody>
-    </table>
+    <div id="luckysheet" style="margin: 20px; width: 100%; height: 600px;"></div>
+    <script src="https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/js/plugin.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luckysheet/dist/luckysheet.umd.js"></script>
     <script>
-        // JavaScript to handle calculations based on inputs
-        document.querySelectorAll('.input-cell').forEach(cell => {
-            cell.addEventListener('input', () => {
-                calculateSheet();
-            });
-        });
-
-        function calculateSheet() {
-            // Example of calculating the profit based on card price and quantity for each column
-            const columns = ['b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
-            columns.forEach(col => {
-                const price = parseFloat(document.getElementById(`${col}5`).value) || 0;
-                const quantity = parseFloat(document.getElementById(`${col}6`).value) || 0;
-                const profitCell = document.getElementById(`${col}7`);
-                if (profitCell) {
-                    profitCell.innerText = price * quantity;
+        // Инициализация Luckysheet
+        luckysheet.create({
+            container: 'luckysheet',
+            showinfobar: false,  // Скрыть информационную панель
+            lang: 'ru',          // Установка языка
+            data: [
+                {
+                    name: "Sheet1",
+                    celldata: [
+                        { "r": 0, "c": 0, "v": { "v": "Цена закуп. карты" } },
+                        { "r": 0, "c": 1, "v": { "v": 13500 } },
+                        { "r": 1, "c": 0, "v": { "v": "Кол-во карт" } },
+                        { "r": 1, "c": 1, "v": { "v": 15 } },
+                        { "r": 2, "c": 0, "v": { "v": "Профит с 1 карты" } },
+                        { "r": 2, "c": 1, "v": { "v": "=B1*B2" } }
+                    ],
+                    config: {}
                 }
-            });
-        }
+            ]
+        });
     </script>
 </body>
 </html>
