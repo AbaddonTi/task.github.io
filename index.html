@@ -2,14 +2,119 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Custom Trello Widget</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheet Replica</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .input-cell {
+            width: 80px;
+        }
+
+        .highlight-blue {
+            color: blue;
+        }
+
+        .highlight-black {
+            color: black;
+            font-weight: bold;
+        }
+
+        .highlight-red {
+            background-color: #f28b82;
+        }
+    </style>
 </head>
 <body>
-    <div id="board">
-        <!-- Columns will be dynamically added here -->
-    </div>
-    <script src="script.js"></script>
+    <h1>Google Sheet Replica</h1>
+    <table id="sheet">
+        <thead>
+            <tr>
+                <th>Статья</th>
+                <th colspan="2">СовКом</th>
+                <th colspan="2">Нал</th>
+                <th colspan="2">ПСБ</th>
+                <th>Итого</th>
+                <th>Консалтинг</th>
+                <th>Бел. треугольники</th>
+            </tr>
+            <tr>
+                <th></th>
+                <th>СБП/Телефон</th>
+                <th>Карта</th>
+                <th>СБП/Телефон</th>
+                <th>Карта</th>
+                <th>СБП/Телефон</th>
+                <th>Карта</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Цена закуп. карты</td>
+                <td><input type="number" class="input-cell" id="b5"></td>
+                <td><input type="number" class="input-cell" id="c5"></td>
+                <td><input type="number" class="input-cell" id="d5"></td>
+                <td><input type="number" class="input-cell" id="e5"></td>
+                <td><input type="number" class="input-cell" id="f5"></td>
+                <td><input type="number" class="input-cell" id="g5"></td>
+                <td><input type="number" class="input-cell" id="h5"></td>
+                <td><input type="number" class="input-cell" id="i5"></td>
+                <td><input type="number" class="input-cell" id="j5"></td>
+            </tr>
+            <tr>
+                <td>Кол-во карт</td>
+                <td><input type="number" class="input-cell" id="b6"></td>
+                <td><input type="number" class="input-cell" id="c6"></td>
+                <td><input type="number" class="input-cell" id="d6"></td>
+                <td><input type="number" class="input-cell" id="e6"></td>
+                <td><input type="number" class="input-cell" id="f6"></td>
+                <td><input type="number" class="input-cell" id="g6"></td>
+                <td><input type="number" class="input-cell" id="h6"></td>
+                <td><input type="number" class="input-cell" id="i6"></td>
+                <td><input type="number" class="input-cell" id="j6"></td>
+            </tr>
+            <!-- More rows can be added similarly -->
+        </tbody>
+    </table>
+    <script>
+        // Sample JavaScript to handle calculations based on inputs
+        document.querySelectorAll('.input-cell').forEach(cell => {
+            cell.addEventListener('input', () => {
+                calculateSheet();
+            });
+        });
+
+        function calculateSheet() {
+            // Example of calculating the profit based on card price and quantity for each column
+            const columns = ['b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+            columns.forEach(col => {
+                const price = parseFloat(document.getElementById(`${col}5`).value) || 0;
+                const quantity = parseFloat(document.getElementById(`${col}6`).value) || 0;
+                const profitCell = document.getElementById(`${col}7`);
+                if (profitCell) {
+                    profitCell.value = price * quantity;
+                }
+            });
+        }
+    </script>
 </body>
 </html>
