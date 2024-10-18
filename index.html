@@ -20,11 +20,12 @@
         }
 
         th {
-            background-color: #f2f2f2;
+            background-color: #d9ead3;
         }
 
         .input-cell {
             width: 80px;
+            background-color: #fff;
         }
 
         .highlight-blue {
@@ -39,6 +40,11 @@
         .highlight-red {
             background-color: #f28b82;
         }
+
+        .readonly-cell {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -46,39 +52,43 @@
     <table id="sheet">
         <thead>
             <tr>
-                <th>Статья</th>
+                <th rowspan="2">Статья</th>
                 <th colspan="2">СовКом</th>
                 <th colspan="2">Нал</th>
                 <th colspan="2">ПСБ</th>
-                <th>Итого</th>
-                <th>Консалтинг</th>
-                <th>Бел. треугольники</th>
+                <th colspan="2">Итого наличка</th>
+                <th colspan="2">Переводы</th>
+                <th rowspan="2">Итого Процессинг</th>
+                <th rowspan="2">Консалтинг</th>
+                <th rowspan="2">Бел. треугольники</th>
             </tr>
             <tr>
-                <th></th>
                 <th>СБП/Телефон</th>
                 <th>Карта</th>
                 <th>СБП/Телефон</th>
                 <th>Карта</th>
                 <th>СБП/Телефон</th>
                 <th>Карта</th>
-                <th></th>
-                <th></th>
-                <th></th>
+                <th>СБП/Телефон</th>
+                <th>Карта</th>
+                <th>СБП/Телефон</th>
+                <th>Карта</th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td>Цена закуп. карты</td>
-                <td><input type="number" class="input-cell" id="b5"></td>
-                <td><input type="number" class="input-cell" id="c5"></td>
-                <td><input type="number" class="input-cell" id="d5"></td>
-                <td><input type="number" class="input-cell" id="e5"></td>
-                <td><input type="number" class="input-cell" id="f5"></td>
-                <td><input type="number" class="input-cell" id="g5"></td>
-                <td><input type="number" class="input-cell" id="h5"></td>
-                <td><input type="number" class="input-cell" id="i5"></td>
-                <td><input type="number" class="input-cell" id="j5"></td>
+                <td><input type="number" class="input-cell highlight-blue" id="b5"></td>
+                <td><input type="number" class="input-cell highlight-blue" id="c5"></td>
+                <td><input type="number" class="input-cell highlight-blue" id="d5"></td>
+                <td><input type="number" class="input-cell highlight-blue" id="e5"></td>
+                <td><input type="number" class="input-cell highlight-blue" id="f5"></td>
+                <td><input type="number" class="input-cell highlight-blue" id="g5"></td>
+                <td><input type="number" class="input-cell highlight-blue" id="h5"></td>
+                <td><input type="number" class="input-cell highlight-blue" id="i5"></td>
+                <td><input type="number" class="input-cell highlight-blue" id="j5"></td>
+                <td><input type="number" class="input-cell highlight-blue" id="k5"></td>
+                <td><input type="number" class="input-cell highlight-blue" id="l5"></td>
             </tr>
             <tr>
                 <td>Кол-во карт</td>
@@ -91,12 +101,28 @@
                 <td><input type="number" class="input-cell" id="h6"></td>
                 <td><input type="number" class="input-cell" id="i6"></td>
                 <td><input type="number" class="input-cell" id="j6"></td>
+                <td><input type="number" class="input-cell" id="k6"></td>
+                <td><input type="number" class="input-cell" id="l6"></td>
+            </tr>
+            <tr>
+                <td>Профит с 1 карты</td>
+                <td class="readonly-cell" id="b7"></td>
+                <td class="readonly-cell" id="c7"></td>
+                <td class="readonly-cell" id="d7"></td>
+                <td class="readonly-cell" id="e7"></td>
+                <td class="readonly-cell" id="f7"></td>
+                <td class="readonly-cell" id="g7"></td>
+                <td class="readonly-cell" id="h7"></td>
+                <td class="readonly-cell" id="i7"></td>
+                <td class="readonly-cell" id="j7"></td>
+                <td class="readonly-cell" id="k7"></td>
+                <td class="readonly-cell" id="l7"></td>
             </tr>
             <!-- More rows can be added similarly -->
         </tbody>
     </table>
     <script>
-        // Sample JavaScript to handle calculations based on inputs
+        // JavaScript to handle calculations based on inputs
         document.querySelectorAll('.input-cell').forEach(cell => {
             cell.addEventListener('input', () => {
                 calculateSheet();
@@ -105,13 +131,13 @@
 
         function calculateSheet() {
             // Example of calculating the profit based on card price and quantity for each column
-            const columns = ['b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+            const columns = ['b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
             columns.forEach(col => {
                 const price = parseFloat(document.getElementById(`${col}5`).value) || 0;
                 const quantity = parseFloat(document.getElementById(`${col}6`).value) || 0;
                 const profitCell = document.getElementById(`${col}7`);
                 if (profitCell) {
-                    profitCell.value = price * quantity;
+                    profitCell.innerText = price * quantity;
                 }
             });
         }
