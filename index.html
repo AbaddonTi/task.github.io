@@ -1,120 +1,34 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luckysheet with Google Sheets-like Toolbar</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/css/pluginsCss.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/plugins.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/luckysheet/dist/css/luckysheet.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        .toolbar {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            background-color: #f1f3f4;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .toolbar button {
-            border: none;
-            background: none;
-            margin-right: 10px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .toolbar button:hover {
-            background-color: #e8e8e8;
-        }
-
-        .toolbar .separator {
-            width: 1px;
-            height: 24px;
-            background-color: #e0e0e0;
-            margin: 0 10px;
-        }
-
-        .luckysheet-container {
-            margin: 20px;
-        }
-
-        .toolbar-icon {
-            font-size: 18px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Упрощенная таблица</title>
+  <!-- Подключение стилей Handsontable -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css">
 </head>
 <body>
-    <div class="toolbar">
-        <button title="Отменить"><span class="toolbar-icon">&#8630;</span></button>
-        <button title="Повторить"><span class="toolbar-icon">&#8631;</span></button>
-        <button title="Сохранить"><span class="toolbar-icon">&#128190;</span></button>
-        <div class="separator"></div>
-        <button title="Жирный"><b>B</b></button>
-        <button title="Курсив"><i>I</i></button>
-        <button title="Подчеркнутый"><u>U</u></button>
-        <div class="separator"></div>
-        <button title="Цвет текста"><span class="toolbar-icon">&#128396;</span></button>
-        <button title="Формат ячеек">&#128220;</button>
-    </div>
+  <div id="example"></div>
 
-    <div id="luckysheet" class="luckysheet-container" style="width: 100%; height: 600px;"></div>
+  <!-- Подключение HyperFormula -->
+  <script src="https://cdn.jsdelivr.net/npm/hyperformula/dist/hyperformula.full.min.js"></script>
+  <!-- Подключение Handsontable -->
+  <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+  <!-- Инициализация таблицы -->
+  <script>
+    // Создаем экземпляр HyperFormula
+    const hyperformulaInstance = HyperFormula.buildEmpty();
 
-    <script src="https://cdn.jsdelivr.net/npm/luckysheet/dist/plugins/js/plugin.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/luckysheet/dist/luckysheet.umd.js"></script>
-    <script>
-        // Инициализация Luckysheet
-        luckysheet.create({
-            container: 'luckysheet',
-            showinfobar: false,
-            lang: 'ru',
-            data: [
-                {
-                    name: "Sheet1",
-                    celldata: [
-                        { "r": 0, "c": 0, "v": { "v": "Цена закуп. карты" } },
-                        { "r": 0, "c": 1, "v": { "v": 13500 } },
-                        { "r": 1, "c": 0, "v": { "v": "Кол-во карт" } },
-                        { "r": 1, "c": 1, "v": { "v": 15 } },
-                        { "r": 2, "c": 0, "v": { "v": "Профит с 1 карты" } },
-                        { "r": 2, "c": 1, "v": { "v": "=B1*B2" } }
-                    ],
-                    config: {}
-                }
-            ]
-        });
-
-        // Функции для кнопок панели инструментов
-        document.querySelector('.toolbar button[title="Отменить"]').addEventListener('click', () => {
-            luckysheet.undo();
-        });
-
-        document.querySelector('.toolbar button[title="Повторить"]').addEventListener('click', () => {
-            luckysheet.redo();
-        });
-
-        document.querySelector('.toolbar button[title="Сохранить"]').addEventListener('click', () => {
-            // Пример сохранения данных
-            const data = luckysheet.getAllSheets();
-            console.log(data); // Можно заменить на вызов сохранения данных на сервере
-            alert("Таблица сохранена!");
-        });
-
-        document.querySelector('.toolbar button[title="Жирный"]').addEventListener('click', () => {
-            luckysheet.setFontBold('A1:Z100'); // Применить жирное начертание к диапазону
-        });
-
-        document.querySelector('.toolbar button[title="Курсив"]').addEventListener('click', () => {
-            luckysheet.setFontItalic('A1:Z100'); // Применить курсив к диапазону
-        });
-
-        document.querySelector('.toolbar button[title="Подчеркнутый"]').addEventListener('click', () => {
-            luckysheet.setFontUnderline('A1:Z100'); // Применить подчеркивание к диапазону
-        });
-    </script>
+    // Инициализируем Handsontable с поддержкой формул
+    const container = document.getElementById('example');
+    const hot = new Handsontable(container, {
+      data: Handsontable.helper.createSpreadsheetData(10, 10),
+      rowHeaders: true,
+      colHeaders: true,
+      formulas: {
+        engine: hyperformulaInstance,
+      },
+      licenseKey: 'non-commercial-and-evaluation' // Лицензионный ключ для некоммерческого использования
+    });
+  </script>
 </body>
 </html>
