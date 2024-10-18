@@ -2,20 +2,39 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Упрощенная таблица с Jspreadsheet</title>
-  <!-- Подключение стилей Jspreadsheet -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jspreadsheet-ce/dist/jspreadsheet.css">
+  <title>Упрощенная таблица с расширенными возможностями</title>
+  <!-- Подключение стилей Handsontable -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css">
 </head>
 <body>
-  <div id="spreadsheet"></div>
+  <div id="example"></div>
 
-  <!-- Подключение Jspreadsheet -->
-  <script src="https://cdn.jsdelivr.net/npm/jspreadsheet-ce/dist/jspreadsheet.js"></script>
+  <!-- Подключение HyperFormula -->
+  <script src="https://cdn.jsdelivr.net/npm/hyperformula/dist/hyperformula.full.min.js"></script>
+  <!-- Подключение Handsontable -->
+  <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
   <!-- Инициализация таблицы -->
   <script>
-    jspreadsheet(document.getElementById('spreadsheet'), {
-      data: [[]],
-      minDimensions: [10, 10],
+    // Создаем экземпляр HyperFormula
+    const hyperformulaInstance = HyperFormula.buildEmpty();
+
+    // Инициализируем Handsontable с поддержкой формул и расширенными возможностями
+    const container = document.getElementById('example');
+    const hot = new Handsontable(container, {
+      data: Handsontable.helper.createSpreadsheetData(10, 10),
+      rowHeaders: true,
+      colHeaders: true,
+      formulas: {
+        engine: hyperformulaInstance,
+      },
+      contextMenu: true, // Включаем контекстное меню
+      manualRowMove: true, // Разрешаем перемещение строк
+      manualColumnMove: true, // Разрешаем перемещение столбцов
+      manualRowResize: true, // Разрешаем изменение размера строк
+      manualColumnResize: true, // Разрешаем изменение размера столбцов
+      allowInsertRow: true, // Разрешаем вставку новых строк
+      allowInsertColumn: true, // Разрешаем вставку новых столбцов
+      licenseKey: 'non-commercial-and-evaluation' // Лицензионный ключ для некоммерческого использования
     });
   </script>
 </body>
