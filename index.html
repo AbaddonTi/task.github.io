@@ -3,21 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Custom Grist Widget with x-data-spreadsheet</title>
-    <!-- Подключение стилей x-data-spreadsheet -->
     <link rel="stylesheet" href="https://unpkg.com/x-data-spreadsheet@1.1.9/dist/xspreadsheet.css">
 </head>
 <body>
 <div id="x-spreadsheet-demo"></div>
 
-<!-- Подключение скриптов x-data-spreadsheet -->
 <script src="https://unpkg.com/x-data-spreadsheet@1.1.9/dist/xspreadsheet.js"></script>
-<!-- Подключение Grist Plugin API -->
 <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
 <script>
-    // Инициализация x-data-spreadsheet
     const s = x_spreadsheet('#x-spreadsheet-demo');
-
-    // Функции для установки текста и стилей ячеек
     function setCellText(row, col, text) {
         s.cellText(row, col, text);
     }
@@ -115,8 +109,6 @@
 
             const uniqueBanks = [...new Set(banks)].filter(bank => bank);
 
-            console.log('Уникальные банки:', uniqueBanks);
-
             return uniqueBanks;
         } catch (error) {
             console.error('Ошибка при получении банков:', error);
@@ -125,6 +117,7 @@
     }
 
     async function calculateMetrics(records, banks) {
+        const paidColumn = 'Выплачено';
         try {
             const priceColumn = 'Цена';
             const bankColumn = 'Банк';
@@ -135,39 +128,74 @@
             const bankCardCounts = {};
             const bankProfits = {};
             const bankProblemCounts = {};
-            const bankBlockCounts = {}; // Добавление подсчета количества карт в блоке
+            const bankBlockCounts = {};
 
             banks.forEach(bank => {
                 bankPrices[bank] = [];
                 bankCardCounts[bank] = 0;
                 bankProfits[bank] = 0;
                 bankProblemCounts[bank] = 0;
-                bankBlockCounts[bank] = 0; // Инициализация количества карт в блоке
+                bankBlockCounts[bank] = 0;
             });
+
+            let totalBankCount = 0;
+            let totalPriceSum = 0;
+            let totalProfitSum = 0;
+            let totalProblemCount = 0;
+            let totalPaidForProblem = 0;
 
             records.forEach(record => {
                 const bank = record[bankColumn];
                 const price = record[priceColumn];
                 const profit = record[profitColumn];
                 const status = record[statusColumn];
-                if (bank && bankPrices[bank] !== undefined) {
-                    bankPrices[bank].push(price || 0);
-                    bankCardCounts[bank] += 1;
-                    bankProfits[bank] += profit || 0;
-                    if (status && status.toLowerCase() === 'проблема') {
-                        bankProblemCounts[bank] += 1;
-                    }
-                    if (status && status.toLowerCase() === 'блокировка') {
-                        bankBlockCounts[bank] += 1;
+                if (bank && bank.trim() !== '') {
+                    if (bankPrices[bank] !== undefined) {
+                        bankPrices[bank].push(price || 0);
+                        bankCardCounts[bank] += 1;
+                        bankProfits[bank] += profit || 0;
+                        totalBankCount += 1;
+                        totalPriceSum += price || 0;
+                        totalProfitSum += profit || 0;
+                        if (status && status.toLowerCase() === 'проблема') {
+                            bankProblemCounts[bank] += 1;
+                            totalProblemCount += 1;
+                            totalPaidForProblem += record[paidColumn] || 0;
+                        }
+                        if (status && status.toLowerCase() === 'блокировка') {
+                            bankBlockCounts[bank] += 1;
+                        }
                     }
                 }
             });
 
-            // Логирование количества и суммы для каждого банка
             banks.forEach(bank => {
                 const totalPrice = bankPrices[bank].reduce((sum, price) => sum + price, 0);
-                console.log(`Банк: ${bank}, Количество записей: ${bankCardCounts[bank]}, Сумма цен: ${totalPrice}, Сумма профита: ${bankProfits[bank]}, Кол-во проблемных карт: ${bankProblemCounts[bank]}, Кол-во карт в блоке: ${bankBlockCounts[bank]}`);
             });
+
+            let averagePrice = 0;
+            if (totalBankCount > 0) {
+                averagePrice = totalPriceSum / totalBankCount;
+            }
+
+            let averageProfit = 0;
+            if (totalBankCount > 0) {
+                averageProfit = totalProfitSum / totalBankCount;
+            }
+
+            let problemPercentage = 0;
+            if (totalBankCount > 0) {
+                problemPercentage = (totalProblemCount / totalBankCount) * 100;
+            }
+
+            const totalProcessingCol = 1 + banks.length;
+            setCellText(6, totalProcessingCol, averagePrice.toFixed(2));
+            setCellText(7, totalProcessingCol, totalBankCount);
+            setCellText(8, totalProcessingCol, averageProfit.toFixed(2));
+            setCellText(10, totalProcessingCol, totalProfitSum.toFixed(2));
+            setCellText(12, totalProcessingCol, (problemPercentage / 100).toFixed(4));
+            setCellText(14, totalProcessingCol, totalProblemCount);
+            setCellText(13, totalProcessingCol, totalPaidForProblem.toFixed(2));
 
             const averagePrices = banks.map(bank => {
                 const prices = bankPrices[bank];
@@ -216,15 +244,14 @@
             setCellText(7, col, bankCardCounts[bank]);
             setCellText(8, col, averageProfits[index].toFixed(2));
             setCellText(12, col, (problemPercentages[index] / 100).toFixed(4));
-            setCellText(14, col, bankProblemCounts[bank]); // Используем фактическое количество проблемных карт
-            setCellText(16, col, (blockPercentages[index] / 100).toFixed(4)); // Используем процент карт в блоке от общего количества
-            setCellText(18, col, bankBlockCounts[bank]); // Используем фактическое количество карт в блоке
+            setCellText(14, col, bankProblemCounts[bank]);
+            setCellText(16, col, (blockPercentages[index] / 100).toFixed(4));
+            setCellText(18, col, bankBlockCounts[bank]);
         });
 
-        // Установка формул для каждого банка, кроме "Кол-во карт проблемных" и "Кол-во карт в блок"
         banks.forEach((bank, index) => {
             const col = 1 + index;
-            const colLetter = String.fromCharCode(65 + col); // Получаем букву колонки (A, B, C и т.д.)
+            const colLetter = String.fromCharCode(65 + col);
 
             setCellText(10, col, `=${colLetter}9*${colLetter}8`);
             setCellText(13, col, `=${colLetter}7*${colLetter}15`);
@@ -235,32 +262,17 @@
             setCellText(25, col, `=СУММ(${colLetter}11-${colLetter}25)`);
         });
 
-        // Установка цвета фона для всех колонок с банками
         banks.forEach((bank, index) => {
             const col = 1 + index;
             setCellBackgroundColor(0, col, '#d9ead3');
             setCellBackgroundColor(25, col, '#d9ead3');
         });
 
-        // Перемещение слова "итого Процессинг" в следующий столбец и установка зелёного фона
         const totalProcessingCol = 1 + banks.length;
         setCellText(0, totalProcessingCol, 'итого Процессинг');
         setCellStyle(0, totalProcessingCol, 'font-bold', true);
         setCellBackgroundColor(0, totalProcessingCol, '#d9ead3');
         setCellBackgroundColor(25, totalProcessingCol, '#d9ead3');
-
-        // Вычисление и установка среднего значения для строки 6 в колонке "итого Процессинг"
-        let sum = 0;
-        let count = 0;
-        banks.forEach((bank, index) => {
-            const averagePrice = averagePrices[index];
-            if (!isNaN(averagePrice)) {
-                sum += averagePrice;
-                count++;
-            }
-        });
-        const averageValue = count > 0 ? (sum / count).toFixed(2) : 0;
-        setCellText(6, totalProcessingCol, averageValue);
     }
 
     async function initializeWidget(records) {
@@ -275,7 +287,7 @@
     }
 
     grist.ready({
-        columns: ['Банк', 'Цена', 'Профит', 'Статус'],
+        columns: ['Банк', 'Цена', 'Профит', 'Статус', 'Выплачено'],
         requiredAccess: 'read table'
     });
 
