@@ -138,14 +138,24 @@
         // Получение всех записей из Table2
         const tableData = await grist.docApi.fetchTable('Table2');
 
+        console.log('Полученные данные из Table2:', tableData);
+
         // Предполагаем, что колонка с выбором банков называется '$bank'
         const bankColumn = '$bank';
+
+        if (!tableData || !tableData.records) {
+          throw new Error('Table2 не содержит данных или структура данных изменилась.');
+        }
 
         // Извлечение всех значений из колонки $bank
         const banks = tableData.records.map(record => record[bankColumn]).flat();
 
+        console.log('Все банки из Table2:', banks);
+
         // Получение уникальных названий банков
         const uniqueBanks = [...new Set(banks)];
+
+        console.log('Уникальные банки:', uniqueBanks);
 
         return uniqueBanks;
       } catch (error) {
@@ -180,9 +190,9 @@
     }
 
     // Инициализация Grist и виджета
-    grist.ready({ requiredAccess: 'read table' });
+    grist.ready({ requiredAccess: 'full' });
 
-    // Подписка на изменения записи
+    // Подписка на изменения записей
     grist.onRecords(async function(records) {
       await initializeWidget();
     });
