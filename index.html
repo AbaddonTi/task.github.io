@@ -142,7 +142,9 @@
             let totalPriceSum = 0;
             let totalProfitSum = 0;
             let totalProblemCount = 0;
+            let totalBlockCount = 0;
             let totalPaidForProblem = 0;
+            let totalPaidForBlock = 0;
 
             records.forEach(record => {
                 const bank = record[bankColumn];
@@ -164,6 +166,8 @@
                         }
                         if (status && status.toLowerCase() === 'блокировка') {
                             bankBlockCounts[bank] += 1;
+                            totalBlockCount += 1;
+                            totalPaidForBlock += record[paidColumn] || 0;
                         }
                     }
                 }
@@ -194,8 +198,17 @@
             setCellText(8, totalProcessingCol, averageProfit.toFixed(2));
             setCellText(10, totalProcessingCol, totalProfitSum.toFixed(2));
             setCellText(12, totalProcessingCol, (problemPercentage / 100).toFixed(4));
+            let blockPercentage = 0;
+            if (totalBankCount > 0) {
+                blockPercentage = (totalBlockCount / totalBankCount) * 100;
+            }
+            setCellText(16, totalProcessingCol, (blockPercentage / 100).toFixed(4));
             setCellText(14, totalProcessingCol, totalProblemCount);
+            setCellText(18, totalProcessingCol, totalBlockCount);
+            const totalProcessingColLetter = String.fromCharCode(65 + totalProcessingCol);
+            setCellText(20, totalProcessingCol, `=${totalProcessingColLetter}8*${totalProcessingColLetter}7`);
             setCellText(13, totalProcessingCol, totalPaidForProblem.toFixed(2));
+            setCellText(17, totalProcessingCol, totalPaidForBlock.toFixed(2));
 
             const averagePrices = banks.map(bank => {
                 const prices = bankPrices[bank];
