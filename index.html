@@ -1,8 +1,196 @@
-<link rel="stylesheet" href="https://unpkg.com/x-data-spreadsheet@1.1.5/dist/xspreadsheet.css">
-<script src="https://unpkg.com/x-data-spreadsheet@1.1.5/dist/xspreadsheet.js"></script>
-<div id="x-spreadsheet-demo"></div>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Custom Grist Widget with x-data-spreadsheet</title>
+  <!-- Подключение стилей x-data-spreadsheet -->
+  <link rel="stylesheet" href="https://unpkg.com/x-data-spreadsheet@1.1.9/dist/xspreadsheet.css">
+  <style>
+    /* Дополнительные стили при необходимости */
+    #x-spreadsheet-demo {
+      width: 100%;
+      height: 600px;
+    }
+  </style>
+</head>
+<body>
+  <div id="x-spreadsheet-demo"></div>
 
-<script>
-    const s = x_spreadsheet("#x-spreadsheet-demo");
-</script>
+  <!-- Подключение скриптов x-data-spreadsheet -->
+  <script src="https://unpkg.com/x-data-spreadsheet@1.1.9/dist/xspreadsheet.js"></script>
+  <!-- Подключение Grist Plugin API -->
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+  <script>
+    // Инициализация x-data-spreadsheet
+    const s = x_spreadsheet('#x-spreadsheet-demo');
 
+    // Функции для установки текста и стилей ячеек
+    function setCellText(row, col, text) {
+      s.cellText(row, col, text);
+    }
+
+    function setCellStyle(ri, ci, property, value, sheetIndex = 0) {
+      const dataProxy = s.datas[sheetIndex];
+      const {styles, rows} = dataProxy;
+      const cell = rows.getCellOrNew(ri, ci);
+      let cstyle = {};
+
+      if (cell.style !== undefined) {
+        cstyle = {...styles[cell.style]};
+      }
+
+      if (property.startsWith('font')) {
+        const nfont = {};
+        nfont[property.split('-')[1]] = value;
+        cstyle.font = {...(cstyle.font || {}), ...nfont};
+      } else {
+        cstyle[property] = value;
+      }
+
+      cell.style = dataProxy.addStyle(cstyle);
+
+      s.reRender();
+    }
+
+    function setCellBackgroundColor(row, col, color, sheetIndex = 0) {
+      setCellStyle(row, col, 'bgcolor', color, sheetIndex);
+    }
+
+    function setColumnWidth(colIndex, width, sheetIndex = 0) {
+      const dataProxy = s.datas[sheetIndex];
+      dataProxy.cols.setWidth(colIndex, width);
+      s.reRender();
+    }
+
+    function setRowHeight(rowIndex, height, sheetIndex = 0) {
+      const dataProxy = s.datas[sheetIndex];
+      dataProxy.rows.setHeight(rowIndex, height);
+      s.reRender();
+    }
+
+    function enableTextWrap(row, col, sheetIndex = 0) {
+      setCellStyle(row, col, 'textwrap', true, sheetIndex);
+    }
+
+    // Функция для инициализации статических данных и стилей
+    function initializeSpreadsheet() {
+      // Установка заголовков и статических данных
+      setCellText(0, 0, 'Статья:');
+      setCellText(6, 0, 'Цена закуп. карты');
+      setCellText(7, 0, 'Кол-во карт');
+      setCellText(8, 0, 'Профит с 1 карты');
+      setCellText(10, 0, 'Выручка наша:');
+      setCellText(12, 0, '% проблемных');
+      setCellText(13, 0, 'Сумма замороженных денег  в проблемных картах');
+      setCellText(14, 0, 'Кол-во карт проблемных');
+      setCellText(16, 0, '% блока');
+      setCellText(17, 0, 'Сумма в блоки (заморозка)');
+      setCellText(18, 0, 'Кол-во карт в блок');
+      setCellText(20, 0, 'закуп карточки');
+      setCellText(21, 0, '% парней с выручки на руки');
+      setCellText(22, 0, 'ФОТ операторы');
+      setCellText(24, 0, 'Итого: переменные косты на подподнаправления');
+      setCellText(25, 0, 'DB 1');
+
+      // Статьи
+      setCellText(0, 1, 'Процессинг:');
+      setCellText(0, 2, 'итого Процессинг');
+
+      // Формулы
+      setCellText(10, 1, '=B9*B8');
+      setCellText(13, 1, '=B7*B15');
+      setCellText(14, 1, '=B8*B13');
+      setCellText(17, 1, '=ЕСЛИОШИБКА(B11*B17)');
+      setCellText(20, 1, '=B8*B7');
+      setCellText(22, 1, '=(B11-B18)*B22');
+      setCellText(24, 1, '=СУММ(B14+B18+B21+B23)');
+      setCellText(25, 1, '=СУММ(B11-B25)');
+
+      // Стили
+      setCellStyle(0, 0, 'font-bold', true);
+      setCellStyle(25, 0, 'font-bold', true);
+      setCellStyle(0, 2, 'font-bold', true);
+
+      setColumnWidth(0, 210);
+      setColumnWidth(2, 130);
+
+      setRowHeight(0, 50);
+      setRowHeight(13, 50);
+      setRowHeight(24, 50);
+
+      enableTextWrap(13, 0);
+      enableTextWrap(24, 0);
+      enableTextWrap(0, 2);
+
+      // Установка цвета фона для заголовков
+      for (let col = 1; col < 2; col++) {
+          setCellBackgroundColor(0, col, '#d9ead3');
+      }
+
+      for (let col = 1; col < 2; col++) {
+          setCellBackgroundColor(25, col, '#d9ead3');
+      }
+    }
+
+    // Функция для получения уникальных банков из Table2
+    async function fetchUniqueBanks() {
+      try {
+        // Получение всех записей из Table2
+        const tableData = await grist.docApi.fetchTable('Table2');
+
+        // Предполагаем, что колонка с выбором банков называется '$bank'
+        const bankColumn = '$bank';
+
+        // Извлечение всех значений из колонки $bank
+        const banks = tableData.records.map(record => record[bankColumn]).flat();
+
+        // Получение уникальных названий банков
+        const uniqueBanks = [...new Set(banks)];
+
+        return uniqueBanks;
+      } catch (error) {
+        console.error('Ошибка при получении банков:', error);
+        return [];
+      }
+    }
+
+    // Функция для заполнения таблицы банков
+    function populateBanks(banks) {
+      banks.forEach((bank, index) => {
+        // Начинаем с строки 4 (индекса 3) и столбца C (индекса 2)
+        const row = 3 + index; // 4-я строка и далее
+        const colLabel = 2; // Столбец C
+
+        setCellText(row, colLabel, `Банк ${index + 1}:`);
+        setCellText(row, colLabel + 1, bank);
+      });
+    }
+
+    // Главная функция для инициализации виджета
+    async function initializeWidget() {
+      initializeSpreadsheet();
+
+      const uniqueBanks = await fetchUniqueBanks();
+      populateBanks(uniqueBanks);
+
+      // Автоматическое расширение столбцов при необходимости
+      uniqueBanks.forEach((bank, index) => {
+        setColumnWidth(2 + index * 2, 150); // Пример: увеличиваем ширину столбца C, E, G и т.д.
+      });
+    }
+
+    // Инициализация Grist и виджета
+    grist.ready({ requiredAccess: 'read table' });
+
+    // Подписка на изменения записи
+    grist.onRecords(async function(records) {
+      await initializeWidget();
+    });
+
+    // Инициализация при загрузке виджета
+    (async () => {
+      await initializeWidget();
+    })();
+  </script>
+</body>
+</html>
