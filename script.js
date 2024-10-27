@@ -95,7 +95,7 @@ async function fetchUniqueBanks(records) {
         const bankColumn = 'Банк';
 
         if (!records || records.length === 0) {
-            console.warn('Нет записей в Table2.');
+            
             return [];
         }
 
@@ -116,9 +116,9 @@ async function calculateMetrics(records, banks) {
     // Фильтрация записей, включающая только строки, у которых значение 'Дата_BLOCK' не пустое, либо 'Приёмка' не пустое и 'Статус' равен 'проблема'
     records = records.filter(record => {
     const dateBlock = record['Дата_BLOCK'];
-console.log('Дата_BLOCK value:', dateBlock);
+
     const acceptanceDate = record['Приёмка'];
-console.log('Приёмка value:', acceptanceDate);
+
 
     if (!dateBlock && !acceptanceDate) {
         return false;
@@ -131,10 +131,10 @@ const DATE_RANGE = {
 
 const isValidDateRange = (date) => {
     if (!(date instanceof Date)) {
-        console.warn('Invalid date format, expected Date object:', date);
+        
         return false;
     }
-    console.log('Date being checked:', date);
+    
     return date >= DATE_RANGE.start && date <= DATE_RANGE.end;
 };
 
@@ -371,10 +371,10 @@ const DATE_RANGE = {
 // Проверка, входит ли дата в заданный диапазон
 const isValidDateRange = (date) => {
     if (!(date instanceof Date)) {
-        console.warn('Invalid date format, expected Date object:', date);
+        
         return false;
     }
-    console.log('Date being checked:', date);
+    
     return date >= DATE_RANGE.start && date <= DATE_RANGE.end;
 };
 
@@ -383,8 +383,8 @@ const FILTERS = {
     bank: ['Россельхозбанк', 'Совкомбанк'], // Замените на нужные значения банков
     dropovod: ['Мария Металлист', 'Гриша'], // Замените на нужные значения дроповодов
     status: ['проблема', 'блокировка'], // Замените на нужные значения статусов
-    method: ['Переводы', 'Метод2'], // Замените на нужные значения методов
-    platform: ['Desend', 'Площадка2'] // Замените на нужные значения площадок
+    method: ['Переводы', 'Наличка'], // Замените на нужные значения методов
+    platform: ['Gate'] // Замените на нужные значения площадок
 };
 
 const applyCustomFilters = (record) => {
@@ -393,6 +393,7 @@ const applyCustomFilters = (record) => {
     const statusFilter = !FILTERS.status.length || FILTERS.status.includes(record['Статус']);
     const methodFilter = !FILTERS.method.length || FILTERS.method.includes(record['Метод']);
     const platformFilter = !FILTERS.platform.length || FILTERS.platform.includes(record['Площадка']);
+
     return bankFilter && dropovodFilter && statusFilter && methodFilter && platformFilter;
 };
     if (mappedRecords) {
