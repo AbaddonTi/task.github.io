@@ -176,7 +176,7 @@ async function initializeWidget(records) {
     setCellText(rowIndex, 0, 'DB 2');
     if (currentExchangeRate) {
         const exchangeRate = parseFloat(currentExchangeRate['Бухгалетрия_Курс_Usd_Rub']) || 1;
-        const db2FormulaTransfers = `=(${String.fromCharCode(65 + totalProcessingCol)}25 - (${totalTransfersFormula} + ${totalCashFormula}))`;
+        const db2FormulaTransfers = `=(${String.fromCharCode(65 + totalProcessingCol)}26 - (${totalTransfersFormula} + ${totalCashFormula}))`;
         setCellText(rowIndex, 1, db2FormulaTransfers);
     }
 }
