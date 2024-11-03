@@ -3,18 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <title>Custom Grist Widget with x-data-spreadsheet</title>
+
+    <!-- Подключение CSS библиотек -->
     <link rel="stylesheet" href="https://unpkg.com/x-data-spreadsheet@1.1.9/dist/xspreadsheet.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css"> <!-- Ваш собственный CSS файл -->
 </head>
 <body>
-<div id="x-spreadsheet-demo"></div>
 
+<div class="spreadsheet-container">
+    <!-- Кнопка фильтра -->
+    <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#filter-panel" aria-expanded="false" aria-controls="filter-panel" id="filter-button">
+        <i class="fas fa-filter"></i>
+    </button>
+
+    <!-- Панель фильтров -->
+    <div class="collapse" id="filter-panel">
+        <div class="row filter-row">
+            <div class="col-12">
+                <input type="text" id="date-range" class="form-control" placeholder="Выберите диапазон дат">
+            </div>
+        </div>
+        <div class="row filter-row">
+            <div class="col-md-6 mb-3">
+                <select id="bank-filter" class="selectpicker" multiple data-live-search="true" title="Банк"></select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <select id="dropovod-filter" class="selectpicker" multiple data-live-search="true" title="Дроповод"></select>
+            </div>
+        </div>
+        <div class="row filter-row">
+            <div class="col-md-6 mb-3">
+                <select id="status-filter" class="selectpicker" multiple data-live-search="true" title="Статус"></select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <select id="method-filter" class="selectpicker" multiple data-live-search="true" title="Метод"></select>
+            </div>
+        </div>
+        <div class="row filter-row">
+            <div class="col-md-6 mb-3">
+                <select id="platform-filter" class="selectpicker" multiple data-live-search="true" title="Площадка"></select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <select id="project-filter" class="selectpicker" multiple data-live-search="true" title="Бухгалтерия Проект"></select>
+            </div>
+        </div>
+        <div class="row filter-row">
+            <div class="col-md-6 mb-3">
+                <select id="operation-filter" class="selectpicker" multiple data-live-search="true" title="Бухгалтерия Операция"></select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <!-- Пустая колонка для выравнивания -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Контейнер для таблицы -->
+    <div id="x-spreadsheet-demo"></div>
+</div>
+
+<!-- Подключение JS библиотек -->
 <script src="https://unpkg.com/x-data-spreadsheet@1.1.9/dist/xspreadsheet.js"></script>
 <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-<script src="utils.js"></script>
-<script src="styleUtils.js"></script>
-<script src="dataProcessing.js"></script>
-<script src="script.js"></script>
+<!-- Ваши собственные JS файлы -->
+<script src="filters.js"></script>
+<script src="UI.js"></script>
+<!-- <script src="main.js"></script>  -->
+<script>
+  // main.js
+  
+  // Инициализация Grist и x-spreadsheet
+  grist.ready({
+      columns: [
+          'Банк', 'Цена', 'Профит', 'Статус', 'Выплачено', 'Дроповод', 'Дата_BLOCK',
+          'Приёмка', 'Метод', 'Площадка', 'Бухгалтерия_Дата', 'Бухгалтерия_Проект',
+          'Бухгалтерия_Операция', 'Бухгалтерия_Сумма', 'Бухгалтерия_Курс_Usd_Rub'
+      ],
+      requiredAccess: 'read table'
+  });
+  
+  const s = x_spreadsheet("#x-spreadsheet-demo");
+  
+  let mappedRecords = [];
+  const fieldsForDB1 = [
+      'Банк', 'Цена', 'Профит', 'Статус', 'Выплачено', 'Дроповод', 'Дата_BLOCK',
+      'Приёмка', 'Метод', 'Площадка'
+  ];
+  const fieldsForDB2 = [
+      'Бухгалтерия_Дата', 'Бухгалтерия_Проект', 'Бухгалтерия_Операция',
+      'Бухгалтерия_Сумма', 'Бухгалтерия_Курс_Usd_Rub'
+  ];
+  
+  // Обработка полученных записей из Grist
+  grist.onRecords(records => {
+      mappedRecords = grist.mapColumnNames(records);
+      populateFilterOptions(); // Вызов из UI.js
+      setupFilterEventListeners(); // Регистрация обработчиков событий
+      applyFiltersAndRender();
+  });
+  
+  // Функция фильтрации и рендеринга данных
+  function applyFiltersAndRender() {
+      const filteredRecordsDB1 = mappedRecords.filter(applyCustomFiltersDB1);
+      const filteredRecordsDB2 = mappedRecords.filter(applyCustomFiltersDB2);
+  
+      s.loadData([
+          { name: 'DB', rows: {} },
+          {
+              name: 'Таблица для DB 1',
+              rows: createRowsData(filteredRecordsDB1, fieldsForDB1)
+          },
+          {
+              name: 'Таблица для DB 2',
+              rows: createRowsData(filteredRecordsDB2, fieldsForDB2)
+          }
+      ]);
+      s.reRender();
+  }
+  
+  // Функция создания данных для таблицы
+  const createRowsData = (records, fields) => ({
+      len: records.length,
+      ...Object.fromEntries(records.map((record, rowIndex) => [
+          rowIndex,
+          {
+              cells: Object.fromEntries(fields.map((field, colIndex) => [
+                  colIndex,
+                  { text: record[field] != null ? (Array.isArray(record[field]) ? record[field].join(', ') : String(record[field])) : '' }
+              ]))
+          }
+      ]))
+  });
+  
+  // Функция регистрации обработчиков событий для фильтров
+  function setupFilterEventListeners() {
+      $('.selectpicker').on('changed.bs.select', function(e, clickedIndex, isSelected, previousValue) {
+          const selectId = $(this).attr('id');
+          let selectedValues = $(this).val() || [];
+  
+          if (clickedIndex === 0) {
+              if (isSelected) {
+                  $(this).selectpicker('selectAll');
+                  $(this).selectpicker('deselect', 'all');
+                  selectedValues = $(this).val() || [];
+              } else {
+                  $(this).selectpicker('deselectAll');
+                  selectedValues = [];
+              }
+          }
+  
+          const filterValue = selectedValues.filter(v => v !== 'all');
+  
+          switch (selectId) {
+              case 'bank-filter':
+                  FILTERS_DB1.bank = filterValue;
+                  break;
+              case 'dropovod-filter':
+                  FILTERS_DB1.dropovod = filterValue;
+                  break;
+              case 'status-filter':
+                  FILTERS_DB1.status = filterValue;
+                  break;
+              case 'method-filter':
+                  FILTERS_DB1.method = filterValue;
+                  break;
+              case 'platform-filter':
+                  FILTERS_DB1.platform = filterValue;
+                  break;
+              case 'project-filter':
+                  FILTERS_DB2.project = filterValue;
+                  break;
+              case 'operation-filter':
+                  FILTERS_DB2.operation = filterValue;
+                  break;
+          }
+  
+          applyFiltersAndRender();
+      });
+  
+      if (!window.flatpickrInstance) {
+          window.flatpickrInstance = flatpickr("#date-range", {
+              mode: "range",
+              dateFormat: "d.m.Y",
+              onClose: function(selectedDates) {
+                  DATE_RANGE.start = selectedDates[0] || null;
+                  DATE_RANGE.end = selectedDates[1] || null;
+                  applyFiltersAndRender();
+              }
+          });
+      }
+  }
+
+</script>
+
 
 </body>
 </html>
