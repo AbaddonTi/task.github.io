@@ -52,7 +52,7 @@ function applyFiltersAndRender() {
     initializeSpreadsheetDB();
 
     // Получение уникальных значений из колонки "Банк" и их отображение начиная со второй колонки первой строки листа 'DB'
-    renderUniqueBankValues(filteredRecordsDB1);
+    renderUniqueBankValues(filteredRecordsDB1, filteredRecordsDB2);
 }
 
 // Функция создания данных для таблицы
