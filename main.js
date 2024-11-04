@@ -47,6 +47,12 @@ function applyFiltersAndRender() {
         }
     ]);
     s.reRender();
+
+    // После загрузки данных, инициализируем лист 'DB'
+    initializeSpreadsheetDB();
+
+    // Получение уникальных значений из колонки "Банк" и их отображение начиная со второй колонки первой строки листа 'DB'
+    renderUniqueBankValues(filteredRecordsDB1);
 }
 
 // Функция создания данных для таблицы
