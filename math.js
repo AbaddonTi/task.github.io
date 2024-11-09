@@ -244,7 +244,7 @@ function renderBankData(bankData) {
     setCellText(17, colIndex, `=${String.fromCharCode(66 + colIndex - 1)}7*${String.fromCharCode(66 + colIndex - 1)}19`, 0);
     setCellText(18, colIndex, totalBlockCount, 0);
     setCellText(20, colIndex, `=${String.fromCharCode(66 + colIndex - 1)}7*${String.fromCharCode(66 + colIndex - 1)}8`, 0);
-    setCellText(21, colIndex, '0.01', 0);
+    setCellText(21, colIndex, '0', 0);
     setCellText(22, colIndex, `=(${String.fromCharCode(66 + colIndex - 1)}11-${String.fromCharCode(66 + colIndex - 1)}18)*${String.fromCharCode(66 + colIndex - 1)}22`, 0);
     setCellText(24, colIndex, `=${String.fromCharCode(66 + colIndex - 1)}14+${String.fromCharCode(66 + colIndex - 1)}18+${String.fromCharCode(66 + colIndex - 1)}21+${String.fromCharCode(66 + colIndex - 1)}23`, 0);
     setCellText(25, colIndex, `=${String.fromCharCode(66 + colIndex - 1)}11-${String.fromCharCode(66 + colIndex - 1)}25`, 0);
