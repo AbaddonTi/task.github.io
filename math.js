@@ -275,6 +275,9 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         "Внесение Слава",
         "Внесение Patek",
         "Внесение Роман",
+        "Вывод Роман",
+        "Вывод Слава",
+        "Вывод Patek",
         "Выплаты Consulting",
         "Перевод (снимаем с счёта)"
     ]);
