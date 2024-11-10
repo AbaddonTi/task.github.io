@@ -1,4 +1,3 @@
-
 /********** STYLE FUNCTIONS **********/
 function setCellStyle(ri, ci, property, value, sheetIndex = 0) {
     const { styles, rows } = s.datas[sheetIndex];
@@ -7,6 +6,8 @@ function setCellStyle(ri, ci, property, value, sheetIndex = 0) {
     if (property.startsWith('font')) {
         const [fontProp] = property.split('-').slice(1);
         cstyle.font = { ...(cstyle.font || {}), [fontProp]: value };
+    } else if (property === 'border') {
+        cstyle.border = { ...(cstyle.border || {}), ...value };
     } else {
         cstyle[property] = value;
     }
@@ -32,8 +33,10 @@ function setCellText(row, col, text, sheetIndex = 0) {
     cell.text = text;
 }
 
-/********** INITIALIZATION FUNCTIONS **********/ 
+/********** INITIALIZATION FUNCTIONS **********/
 const defaultBorderStyle = { style: 'thin', color: '#000000' };
+const thickBorderStyle = { style: 'thick', color: '#000000' }; // Толстая граница
+
 const getBorderStyle = style => ({
     top: [style, defaultBorderStyle.color],
     bottom: [style, defaultBorderStyle.color],
@@ -42,13 +45,22 @@ const getBorderStyle = style => ({
 });
 
 function initializeSpreadsheetDB() {
-    const thickBorderStyle = getBorderStyle('thick');
-    
-    [[0, 0], [0, 1]].forEach(([row, col]) => setCellBorder(row, col, thickBorderStyle));
+    // Установка толстых вертикальных границ для первых двух ячеек
+    [[0, 0], [0, 1]].forEach(([row, col]) => setCellBorder(row, col, getBorderStyle('thick')));
+
+    // Установка заголовков "Статья" и "Процессинг"
     [[0, 0, 'Статья'], [0, 1, 'Процессинг']].forEach(([row, col, text]) => setCellText(row, col, text, 0));
+
+    // Установка ширины колонок
     [[0, 150], [1, 150]].forEach(([col, width]) => setColumnWidth(col, width, 0));
+
+    // Установка высоты первой строки
     setRowHeight(0, 30, 0);
+
+    // Включение переноса текста для первых двух ячеек
     [[0, 0], [0, 1]].forEach(([row, col]) => enableTextWrap(row, col, 0));
+
+    // Установка текста для различных строк
     [
         { row: 6, text: 'Цена закуп. карты' },
         { row: 7, text: 'Кол-во карт' },
@@ -181,9 +193,9 @@ function renderBankData(bankData) {
     Object.keys(bankMethodMap).forEach(method => {
         const banks = Array.from(bankMethodMap[method]);
         const methodStartColIndex = colIndex;
-        const methodEndColIndex = colIndex + banks.length; 
+        const methodEndColIndex = colIndex + banks.length;
 
-        methodColIndexes[method] = { start: methodStartColIndex, end: methodEndColIndex }; 
+        methodColIndexes[method] = { start: methodStartColIndex, end: methodEndColIndex };
 
         setCellText(2, methodStartColIndex, method, 0);
         setCellBorder(2, methodStartColIndex, getBorderStyle('thick'));
@@ -234,21 +246,21 @@ function renderBankData(bankData) {
 
         const bankColLetters = banks.map((_, index) => String.fromCharCode(66 + (colIndex + index) -1));
 
-        setCellText(6, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '7').join(',')})`, 0);  
-        setCellText(7, totalColIndex, `=SUM(${bankColLetters.map(l => l + '8').join(',')})`, 0);     
-        setCellText(8, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '9').join(',')})`, 0);  
-        setCellText(10, totalColIndex, `=SUM(${bankColLetters.map(l => l + '11').join(',')})`, 0);   
-        setCellText(12, totalColIndex, `=${totalColLetter}15/${totalColLetter}8*100`, 0);            
-        setCellText(13, totalColIndex, `=SUM(${bankColLetters.map(l => l + '14').join(',')})`, 0);    
-        setCellText(14, totalColIndex, `=SUM(${bankColLetters.map(l => l + '15').join(',')})`, 0);   
-        setCellText(16, totalColIndex, `=${totalColLetter}19/${totalColLetter}8*100`, 0);             
-        setCellText(17, totalColIndex, `=SUM(${bankColLetters.map(l => l + '18').join(',')})`, 0);   
-        setCellText(18, totalColIndex, `=SUM(${bankColLetters.map(l => l + '19').join(',')})`, 0);   
-        setCellText(20, totalColIndex, `=SUM(${bankColLetters.map(l => l + '21').join(',')})`, 0);    
+        setCellText(6, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '7').join(',')})`, 0);
+        setCellText(7, totalColIndex, `=SUM(${bankColLetters.map(l => l + '8').join(',')})`, 0);
+        setCellText(8, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '9').join(',')})`, 0);
+        setCellText(10, totalColIndex, `=SUM(${bankColLetters.map(l => l + '11').join(',')})`, 0);
+        setCellText(12, totalColIndex, `=${totalColLetter}15/${totalColLetter}8*100`, 0);
+        setCellText(13, totalColIndex, `=SUM(${bankColLetters.map(l => l + '14').join(',')})`, 0);
+        setCellText(14, totalColIndex, `=SUM(${bankColLetters.map(l => l + '15').join(',')})`, 0);
+        setCellText(16, totalColIndex, `=${totalColLetter}19/${totalColLetter}8*100`, 0);
+        setCellText(17, totalColIndex, `=SUM(${bankColLetters.map(l => l + '18').join(',')})`, 0);
+        setCellText(18, totalColIndex, `=SUM(${bankColLetters.map(l => l + '19').join(',')})`, 0);
+        setCellText(20, totalColIndex, `=SUM(${bankColLetters.map(l => l + '21').join(',')})`, 0);
         setCellText(21, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '22').join(',')})`, 0);
-        setCellText(22, totalColIndex, `=SUM(${bankColLetters.map(l => l + '23').join(',')})`, 0);    
-        setCellText(24, totalColIndex, `=SUM(${bankColLetters.map(l => l + '25').join(',')})`, 0);    
-        setCellText(25, totalColIndex, `=${totalColLetter}11-${totalColLetter}25`, 0);                
+        setCellText(22, totalColIndex, `=SUM(${bankColLetters.map(l => l + '23').join(',')})`, 0);
+        setCellText(24, totalColIndex, `=SUM(${bankColLetters.map(l => l + '25').join(',')})`, 0);
+        setCellText(25, totalColIndex, `=${totalColLetter}11-${totalColLetter}25`, 0);
 
         colIndex = totalColIndex + 1;
     });
@@ -288,9 +300,19 @@ function getExchangeRate(records) {
             return parseFloat(record['Бухгалтерия_Курс_Usd_Rub']);
         }
     }
-    return null; 
+    return null;
 }
 
+function setRightBorders(colIndexes, startRow, endRow, sheetIndex = 0, isThick = false) {
+    const borderStyle = isThick ? getBorderStyle('thick') : getBorderStyle('thin');
+    colIndexes.forEach(colIndex => {
+        for (let ri = startRow; ri <= endRow; ri++) {
+            setCellBorder(ri, colIndex, {
+                right: [borderStyle.right[0], borderStyle.right[1]]
+            }, sheetIndex);
+        }
+    });
+}
 
 function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }) {
     const excludedOperations = new Set([
@@ -307,7 +329,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     ]);
     const uniqueOperations = new Set();
     const operationSums = {};
-    const exchangeRate = getExchangeRate(mappedRecords);
+    const exchangeRate = getExchangeRate(mappedRecords); // Предполагается, что mappedRecords доступен
 
     let rowIndex = 28;
     const totalSums = {
@@ -399,7 +421,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
         const totalProcessingSum = (переводSum + наличкаSum).toFixed(2);
 
-        setCellText(rowIndex, colIndex, totalProcessingSum, 0); 
+        setCellText(rowIndex, colIndex, totalProcessingSum, 0);
 
         if (methodColIndexes['Переводы']) {
             const methodTotalColIndex = methodColIndexes['Переводы'].end;
@@ -430,12 +452,12 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         setCellText(rowIndex, 1, exchangeRate.toFixed(2), 0);
     }
 
-    const exchangeRateRowIndex = rowIndex + 1; 
+    const exchangeRateRowIndex = rowIndex + 1;
 
     rowIndex++;
 
     const cashInColLetter = String.fromCharCode(65 + cashInColIndex);
-    setCellText(25, cashInColIndex, `=${cashInColLetter}11*B${exchangeRateRowIndex}`, 0); 
+    setCellText(25, cashInColIndex, `=${cashInColLetter}11*B${exchangeRateRowIndex}`, 0);
 
     const totalTotalsColIndex = cashInColIndex + 1;
     setCellText(0, totalTotalsColIndex, "Итоги Итогов:", 0);
@@ -466,8 +488,8 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         }
         if (methodColIndexes['Наличка']) {
             const methodTotalColIndex = methodColIndexes['Наличка'].end;
-            const totalInRublesНаличка = (totalSums['Процессинг//Наличка'] * exchangeRate).toFixed(2);
-            setCellText(rowIndex, methodTotalColIndex, totalInRublesНаличка, 0);
+            const totalInRublesНаличka = (totalSums['Процессинг//Наличка'] * exchangeRate).toFixed(2);
+            setCellText(rowIndex, methodTotalColIndex, totalInRublesНаличka, 0);
         }
         const totalInRubles = (totalSums['Итого'] * exchangeRate).toFixed(2);
         setCellText(rowIndex, colIndex, totalInRubles, 0);
@@ -477,13 +499,12 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     const rubleSubTotalRowIndex = rowIndex + 1;
 
-    // Следующая строка для "₽ DB 2"
     rowIndex++;
     setCellText(rowIndex, 0, "₽ DB 2", 0);
 
     const totalColLetter = String.fromCharCode(65 + colIndex);
     const db2Formula = `=${totalColLetter}26 - ${totalColLetter}${rubleSubTotalRowIndex}`;
-    setCellText(rowIndex, colIndex, db2Formula, 0); 
+    setCellText(rowIndex, colIndex, db2Formula, 0);
 
     // === Отступ двух строк и переходим к DB 3 ===
     rowIndex += 2;
@@ -512,7 +533,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     Object.keys(processingOperations).forEach(operation => {
         setCellText(rowIndex, 0, operation, 0);
         const operationSum = processingOperations[operation].toFixed(2);
-        setCellText(rowIndex, colIndex, operationSum, 0); 
+        setCellText(rowIndex, colIndex, operationSum, 0);
         processingTotalSum += parseFloat(operationSum);
         rowIndex++;
     });
@@ -535,7 +556,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellText(rowIndex, 0, "₽ Итого: фикс косты на направление", 0);
     if (exchangeRate !== null) {
         const totalInRublesProcessing = (totalProcessingAndCashInSum * exchangeRate).toFixed(2);
-        setCellText(rowIndex, colIndex, totalInRublesProcessing, 0); 
+        setCellText(rowIndex, colIndex, totalInRublesProcessing, 0);
 
         if (methodColIndexes['Cash-In//']) {
             const totalInRublesCashIn = (cashInTotalSums['Cash-In//'] * exchangeRate).toFixed(2);
@@ -562,6 +583,73 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     const cashInDB3ColLetter = cashInColLetter;
     setCellText(rowIndex, totalTotalsColIndex, `=${totalColLetter}${rowIndex + 1}+${cashInDB3ColLetter}${rowIndex + 1}`, 0);
+
+    // === Добавление Правых Границ для Методов ===
+    const borderStartRow = 0; // Начальная строка, с которой начинаются методы
+    const borderEndRow = rowIndex; // Последняя строка после рендеринга
+
+    Object.values(methodColIndexes).forEach(({ end: lastColIndex }) => {
+        for (let ri = borderStartRow; ri <= borderEndRow; ri++) {
+            setCellBorder(ri, lastColIndex, {
+                right: [defaultBorderStyle.style, defaultBorderStyle.color]
+            }, 0);
+        }
+    });
+
+    // === Добавление Правых Границ для Дополнительных Колонок ===
+
+    // Определяем список колонок, для которых нужно установить правые границы
+    const additionalBordersColIndexes = [
+        0, // Первый столбец ("Статья")
+        colIndex, // Колонка "итого Процессинг"
+        cashInColIndex, // Колонка "Cash-In//"
+        totalTotalsColIndex // Колонка "Итоги Итогов:"
+    ];
+
+    // Устанавливаем толстые границы для указанных колонок
+    additionalBordersColIndexes.forEach(targetColIndex => {
+        for (let ri = borderStartRow; ri <= borderEndRow; ri++) {
+            // Определяем, какую границу использовать: 'thick' или 'thin'
+            let borderStyle;
+            if (
+                targetColIndex === 0 || // "Статья"
+                targetColIndex === colIndex || // "итого Процессинг"
+                targetColIndex === cashInColIndex || // "Cash-In//"
+                targetColIndex === totalTotalsColIndex // "Итоги Итогов:"
+            ) {
+                borderStyle = getBorderStyle('thick'); // Толстая граница
+            } else {
+                borderStyle = getBorderStyle('thin'); // Тонкая граница (на всякий случай)
+            }
+
+            setCellBorder(ri, targetColIndex, {
+                right: [borderStyle.right[0], borderStyle.right[1]]
+            }, 0);
+        }
+    });
+
+    // === Добавление Тонких Горизонтальных Линий Под Каждым DB ===
+    // Точное отслеживание строк DB1, DB2 и DB3
+    const db1Row = 25;
+    const db2Row = rubleSubTotalRowIndex; // Строка под "₽ DB 2"
+    const db3Row = rowIndex; // Строка под "₽ DB 3"
+
+    const dbRows = [db1Row, db2Row, db3Row];
+
+    dbRows.forEach(dbRow => {
+        for (let col = 0; col <= totalTotalsColIndex; col++) {
+            setCellBorder(dbRow, col, {
+                bottom: ['thin', '#000000']
+            }, 0);
+        }
+    });
+
+    // === Добавление Тонкой Горизонтальной Линии Под Первой Строкой (Заголовки) ===
+    for (let col = 0; col <= totalTotalsColIndex; col++) {
+        setCellBorder(0, col, {
+            bottom: ['thin', '#000000']
+        }, 0);
+    }
+
+    // === Завершение Функции ===
 }
-
-
