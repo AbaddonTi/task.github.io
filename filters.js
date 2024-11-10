@@ -40,8 +40,7 @@ const applyCustomFiltersDB1 = (record) => {
     if (!record['Дата_BLOCK'] && !record['Приёмка']) return false;
 
     let status = record['Статус'];
-    if (Array.isArray(status)) {
-    } else {
+    if (!Array.isArray(status)) {
         status = [status];
     }
 
@@ -55,8 +54,14 @@ const applyCustomFiltersDB1 = (record) => {
     const methodFilter = !FILTERS_DB1.method.length || (Array.isArray(record['Метод']) ? record['Метод'].some(method => FILTERS_DB1.method.includes(method)) : FILTERS_DB1.method.includes(record['Метод']));
     const platformFilter = !FILTERS_DB1.platform.length || (Array.isArray(record['Площадка']) ? record['Площадка'].some(platform => FILTERS_DB1.platform.includes(platform)) : FILTERS_DB1.platform.includes(record['Площадка']));
 
-    return dateFilter && bankFilter && dropovodFilter && statusFilter && methodFilter && platformFilter;
+    // Исключаем записи, где 'Дроповод' равен 'Consult Kayos' или 'Consult Titan' 
+    const excludedDropovods = ['Consult Kayos', 'Consult Titan'];
+    const dropovodValue = record['Дроповод'];
+    const excludedDropovodFilter = !(Array.isArray(dropovodValue) ? dropovodValue.some(dropovod => excludedDropovods.includes(dropovod)) : excludedDropovods.includes(dropovodValue));
+
+    return dateFilter && bankFilter && dropovodFilter && statusFilter && methodFilter && platformFilter && excludedDropovodFilter;
 };
+
 
 const applyCustomFiltersDB2 = (record) => {
     const dateFilter = isDateInRange(record['Бухгалтерия_Дата']);
