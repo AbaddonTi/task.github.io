@@ -32,7 +32,7 @@ function setCellText(row, col, text, sheetIndex = 0) {
     cell.text = text;
 }
 
-/********** INITIALIZATION FUNCTIONS **********/
+/********** INITIALIZATION FUNCTIONS **********/ 
 const defaultBorderStyle = { style: 'thin', color: '#000000' };
 const getBorderStyle = style => ({
     top: [style, defaultBorderStyle.color],
@@ -180,20 +180,23 @@ function renderBankData(bankData) {
 
     Object.keys(bankMethodMap).forEach(method => {
         const banks = Array.from(bankMethodMap[method]);
-        const endColIndex = colIndex + banks.length - 1;
+        const methodStartColIndex = colIndex;
+        const methodEndColIndex = colIndex + banks.length; // Добавляем 1 для итоговой колонки
 
-        methodColIndexes[method] = colIndex; // Store column index for each method
+        methodColIndexes[method] = { start: methodStartColIndex, end: methodEndColIndex }; // Сохраняем начальный и конечный индексы колонок для каждого метода
 
-        setCellText(2, colIndex, method, 0);
-        setCellBorder(2, colIndex, getBorderStyle('thick'));
-        for (let i = colIndex; i <= endColIndex; i++) {
+        // Установка заголовка метода
+        setCellText(2, methodStartColIndex, method, 0);
+        setCellBorder(2, methodStartColIndex, getBorderStyle('thick'));
+        for (let i = methodStartColIndex; i <= methodEndColIndex; i++) {
             setCellBorder(3, i, getBorderStyle('thin'));
         }
-        setCellBackgroundColor(0, colIndex, '#d9ead3', 0);
-        for (let i = colIndex + 1; i <= endColIndex; i++) {
+        // Установка цвета фона для заголовка метода
+        for (let i = methodStartColIndex; i <= methodEndColIndex; i++) {
             setCellBackgroundColor(0, i, '#d9ead3', 0);
         }
 
+        // Обработка каждого банка
         banks.forEach((bank, bankIndex) => {
             const bankColIndex = colIndex + bankIndex;
             const colLetter = String.fromCharCode(66 + bankColIndex - 1);
@@ -221,40 +224,74 @@ function renderBankData(bankData) {
             setCellText(17, bankColIndex, `=${colLetter}7*${colLetter}19`, 0);
             setCellText(18, bankColIndex, bankBlockCountsMap[method]?.[bank] || 0, 0);
             setCellText(20, bankColIndex, `=${colLetter}7*${colLetter}8`, 0);
-            setCellText(21, bankColIndex, '0.01', 0);
+            setCellText(21, bankColIndex, '0', 0);
             setCellText(22, bankColIndex, `=(${colLetter}11-${colLetter}18)*${colLetter}22`, 0);
             setCellText(24, bankColIndex, `=${colLetter}14+${colLetter}18+${colLetter}21+${colLetter}23`, 0);
             setCellText(25, bankColIndex, `=${colLetter}11-${colLetter}25`, 0);
         });
-        colIndex = endColIndex + 1;
+
+        // Добавление итоговой колонки для метода
+        const totalColIndex = colIndex + banks.length;
+        const totalColLetter = String.fromCharCode(66 + totalColIndex - 1);
+        setCellText(2, totalColIndex, `Итого ${method}`, 0);
+        setCellBorder(2, totalColIndex, getBorderStyle('thick'), 0);
+
+        const bankColLetters = banks.map((_, index) => String.fromCharCode(66 + (colIndex + index) -1));
+
+        // Заполнение формул в итоговой колонке метода
+        setCellText(6, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '7').join(',')})`, 0);  // Среднее значение цен
+        setCellText(7, totalColIndex, `=SUM(${bankColLetters.map(l => l + '8').join(',')})`, 0);      // Общее количество
+        setCellText(8, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '9').join(',')})`, 0);  // Средняя прибыль
+        setCellText(10, totalColIndex, `=SUM(${bankColLetters.map(l => l + '11').join(',')})`, 0);    // Общая прибыль
+        setCellText(12, totalColIndex, `=${totalColLetter}15/${totalColLetter}8*100`, 0);             // Расчёт процента
+        setCellText(13, totalColIndex, `=SUM(${bankColLetters.map(l => l + '14').join(',')})`, 0);    // Сумма по строке 13
+        setCellText(14, totalColIndex, `=SUM(${bankColLetters.map(l => l + '15').join(',')})`, 0);    // Общее количество проблем
+        setCellText(16, totalColIndex, `=${totalColLetter}19/${totalColLetter}8*100`, 0);             // Расчёт процента проблем
+        setCellText(17, totalColIndex, `=SUM(${bankColLetters.map(l => l + '18').join(',')})`, 0);    // Сумма по строке 17
+        setCellText(18, totalColIndex, `=SUM(${bankColLetters.map(l => l + '19').join(',')})`, 0);    // Общее количество блокировок
+        setCellText(20, totalColIndex, `=SUM(${bankColLetters.map(l => l + '21').join(',')})`, 0);    // Сумма по строке 20
+        setCellText(21, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '22').join(',')})`, 0);// Среднее значение по строке 21
+        setCellText(22, totalColIndex, `=SUM(${bankColLetters.map(l => l + '23').join(',')})`, 0);    // Сумма по строке 22
+        setCellText(24, totalColIndex, `=SUM(${bankColLetters.map(l => l + '25').join(',')})`, 0);    // Сумма по строке 24
+        setCellText(25, totalColIndex, `=${totalColLetter}11-${totalColLetter}25`, 0);                // Итоговый расчёт
+
+
+        // Обновление colIndex для следующего метода
+        colIndex = totalColIndex + 1;
     });
 
+    // Обработка колонки "итого Процессинг"
     setCellText(0, colIndex, 'итого Процессинг', 0);
     setCellBorder(0, colIndex, getBorderStyle('thick'), 0);
     setCellBackgroundColor(0, colIndex, '#d9ead3', 0);
+
+    const totalColLetter = String.fromCharCode(66 + colIndex - 1);
 
     setCellText(6, colIndex, averagePrice, 0);
     setCellText(7, colIndex, totalBanksCount, 0);
     setCellText(8, colIndex, averageProfit, 0);
     setCellText(10, colIndex, sumProfit, 0);
-    setCellText(12, colIndex, `=${String.fromCharCode(66 + colIndex - 1)}15/${String.fromCharCode(66 + colIndex - 1)}8*100`, 0);
-    setCellText(13, colIndex, `=${String.fromCharCode(66 + colIndex - 1)}7*${String.fromCharCode(66 + colIndex - 1)}15`, 0);
+    setCellText(12, colIndex, `=${totalColLetter}15/${totalColLetter}8*100`, 0);
+    setCellText(13, colIndex, `=${totalColLetter}7*${totalColLetter}15`, 0);
     setCellText(14, colIndex, totalProblemCount, 0);
-    setCellText(16, colIndex, `=${String.fromCharCode(66 + colIndex - 1)}19/${String.fromCharCode(66 + colIndex - 1)}8*100`, 0);
-    setCellText(17, colIndex, `=${String.fromCharCode(66 + colIndex - 1)}7*${String.fromCharCode(66 + colIndex - 1)}19`, 0);
+    setCellText(16, colIndex, `=${totalColLetter}19/${totalColLetter}8*100`, 0);
+    setCellText(17, colIndex, `=${totalColLetter}7*${totalColLetter}19`, 0);
     setCellText(18, colIndex, totalBlockCount, 0);
-    setCellText(20, colIndex, `=${String.fromCharCode(66 + colIndex - 1)}7*${String.fromCharCode(66 + colIndex - 1)}8`, 0);
+    setCellText(20, colIndex, `=${totalColLetter}7*${totalColLetter}8`, 0);
     setCellText(21, colIndex, '0', 0);
-    setCellText(22, colIndex, `=(${String.fromCharCode(66 + colIndex - 1)}11-${String.fromCharCode(66 + colIndex - 1)}18)*${String.fromCharCode(66 + colIndex - 1)}22`, 0);
-    setCellText(24, colIndex, `=${String.fromCharCode(66 + colIndex - 1)}14+${String.fromCharCode(66 + colIndex - 1)}18+${String.fromCharCode(66 + colIndex - 1)}21+${String.fromCharCode(66 + colIndex - 1)}23`, 0);
-    setCellText(25, colIndex, `=${String.fromCharCode(66 + colIndex - 1)}11-${String.fromCharCode(66 + colIndex - 1)}25`, 0);
+    setCellText(22, colIndex, `=(${totalColLetter}11-${totalColLetter}18)*${totalColLetter}22`, 0);
+    setCellText(24, colIndex, `=${totalColLetter}14+${totalColLetter}18+${totalColLetter}21+${totalColLetter}23`, 0);
+    setCellText(25, colIndex, `=${totalColLetter}11-${totalColLetter}25`, 0);
 
+    // Установка цвета фона для всех заголовочных строк
     for (let i = 1; i <= colIndex; i++) {
         setCellBackgroundColor(0, i, '#d9ead3', 0);
     }
 
     return { colIndex, methodColIndexes };
 }
+
+
 
 // Функция для получения текущего курса USD/RUB из всех записей
 function getExchangeRate(records) {
@@ -267,7 +304,7 @@ function getExchangeRate(records) {
     return null; // Возвращаем null, если курс не найден
 }
 
-// Обновленная функция renderOperationTypes
+
 function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }) {
     const excludedOperations = new Set([
         "Пересчёт кассы",
@@ -316,11 +353,13 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
             setCellText(rowIndex, colIndex, totalSum, 0); // Колонка "итого Процессинг"
 
             if (methodColIndexes['Переводы']) {
-                setCellText(rowIndex, methodColIndexes['Переводы'], переводSum.toFixed(2), 0);
+                const methodTotalColIndex = methodColIndexes['Переводы'].end; // Используем итоговую колонку метода
+                setCellText(rowIndex, methodTotalColIndex, переводSum.toFixed(2), 0);
                 totalSums['Процессинг//Переводы'] += переводSum;
             }
             if (methodColIndexes['Наличка']) {
-                setCellText(rowIndex, methodColIndexes['Наличка'], наличкаSum.toFixed(2), 0);
+                const methodTotalColIndex = methodColIndexes['Наличка'].end; // Используем итоговую колонку метода
+                setCellText(rowIndex, methodTotalColIndex, наличкаSum.toFixed(2), 0);
                 totalSums['Процессинг//Наличка'] += наличкаSum;
             }
 
@@ -344,10 +383,12 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     // Итоговая строка для фиксированных костов в долларах
     setCellText(rowIndex, 0, "$ Итого: фикс косты на направление", 0);
     if (methodColIndexes['Переводы']) {
-        setCellText(rowIndex, methodColIndexes['Переводы'], totalSums['Процессинг//Переводы'].toFixed(2), 0);
+        const methodTotalColIndex = methodColIndexes['Переводы'].end;
+        setCellText(rowIndex, methodTotalColIndex, totalSums['Процессинг//Переводы'].toFixed(2), 0);
     }
     if (methodColIndexes['Наличка']) {
-        setCellText(rowIndex, methodColIndexes['Наличка'], totalSums['Процессинг//Наличка'].toFixed(2), 0);
+        const methodTotalColIndex = methodColIndexes['Наличка'].end;
+        setCellText(rowIndex, methodTotalColIndex, totalSums['Процессинг//Наличка'].toFixed(2), 0);
     }
     setCellText(rowIndex, colIndex, totalSums['Итого'].toFixed(2), 0); // Колонка "итого Процессинг"
 
@@ -356,12 +397,14 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellText(rowIndex, 0, "₽ Итого: фикс косты на направление", 0);
     if (exchangeRate !== null) {
         if (methodColIndexes['Переводы']) {
+            const methodTotalColIndex = methodColIndexes['Переводы'].end;
             const totalInRublesПереводы = (totalSums['Процессинг//Переводы'] * exchangeRate).toFixed(2);
-            setCellText(rowIndex, methodColIndexes['Переводы'], totalInRublesПереводы, 0);
+            setCellText(rowIndex, methodTotalColIndex, totalInRublesПереводы, 0);
         }
         if (methodColIndexes['Наличка']) {
+            const methodTotalColIndex = methodColIndexes['Наличка'].end;
             const totalInRublesНаличка = (totalSums['Процессинг//Наличка'] * exchangeRate).toFixed(2);
-            setCellText(rowIndex, methodColIndexes['Наличка'], totalInRublesНаличка, 0);
+            setCellText(rowIndex, methodTotalColIndex, totalInRublesНаличка, 0);
         }
         const totalInRubles = (totalSums['Итого'] * exchangeRate).toFixed(2);
         setCellText(rowIndex, colIndex, totalInRubles, 0); // Колонка "итого Процессинг"
@@ -377,10 +420,10 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellText(rowIndex, 0, "₽ DB 2", 0);
 
     // Определяем букву колонки для текущей колонки
-    const currentColLetter = String.fromCharCode(66 + colIndex - 1);
+    const totalColLetter = String.fromCharCode(66 + colIndex - 1);
 
     // Формула для расчета "₽ DB 2" как разница между значениями в строке 26 и строкой с "₽ Итого: фикс косты на направление"
-    const db2Formula = `=${currentColLetter}26 - ${currentColLetter}${rubleTotalRowIndex}`;
+    const db2Formula = `=${totalColLetter}26 - ${totalColLetter}${rubleTotalRowIndex}`;
     setCellText(rowIndex, colIndex, db2Formula, 0); // Колонка "итого Процессинг" с формулой
 
     // Отступ двух строк
@@ -433,6 +476,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellText(rowIndex, 0, "₽ DB 3", 0);
 
     // Формула для расчета "₽ DB 3" как разница между значениями в строке "₽ DB 2" и строкой с "₽ Итого: фикс косты на направление"
-    const db3Formula = `=${currentColLetter}${rubleTotalRowIndex + 1} - ${currentColLetter}${rowIndex}`;
+    const db3Formula = `=${totalColLetter}${rubleTotalRowIndex + 1} - ${totalColLetter}${rowIndex}`;
     setCellText(rowIndex, colIndex, db3Formula, 0); // Колонка "итого Процессинг" с формулой
 }
+
