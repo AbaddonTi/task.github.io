@@ -22,13 +22,26 @@ const fieldsForDB2 = [
     'Бухгалтерия_Сумма', 'Бухгалтерия_Курс_Usd_Rub'
 ];
 
-// Обработка полученных записей из Grist
+let exchangeRate = null;
+
+
 grist.onRecords(records => {
     mappedRecords = grist.mapColumnNames(records);
+    exchangeRate = getExchangeRate(mappedRecords); // Извлекаем курс из всех записей
     populateFilterOptions(); // Вызов из UI.js
     setupFilterEventListeners(); // Регистрация обработчиков событий
     applyFiltersAndRender();
 });
+
+function getExchangeRate(records) {
+    for (let record of records) {
+        if (record['Бухгалтерия_Курс_Usd_Rub']) {
+            return parseFloat(record['Бухгалтерия_Курс_Usd_Rub']);
+        }
+    }
+    return null;
+}
+
 
 // Функция фильтрации и рендеринга данных
 function applyFiltersAndRender() {
