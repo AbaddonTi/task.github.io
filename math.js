@@ -88,10 +88,12 @@ function initializeSpreadsheetDB() {
 /********** DYNAMIC RENDERING FUNCTIONS **********/
 function renderUniqueBankValues(filteredRecordsDB1, filteredRecordsDB2) {
     const bankData = processBankRecords(filteredRecordsDB1);
-    const methodColIndexes = renderBankData(bankData);
-    renderOperationTypes(filteredRecordsDB2, methodColIndexes);
+    const { colIndex, methodColIndexes } = renderBankData(bankData); // Деструктуризация
+    renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }, exchangeRate); 
     s.reRender();
 }
+
+
 
 function processBankRecords(filteredRecordsDB1) {
     const bankMethodMap = {},
@@ -387,27 +389,7 @@ function renderBankData(bankData) {
 }
 
 
-function getExchangeRate(records) {
-    for (let record of records) {
-        if (record['Бухгалтерия_Курс_Usd_Rub']) {
-            return parseFloat(record['Бухгалтерия_Курс_Usd_Rub']);
-        }
-    }
-    return null;
-}
-
-function setRightBorders(colIndexes, startRow, endRow, sheetIndex = 0, isThick = false) {
-    const borderStyle = isThick ? getBorderStyle('thick') : getBorderStyle('thin');
-    colIndexes.forEach(colIndex => {
-        for (let ri = startRow; ri <= endRow; ri++) {
-            setCellBorder(ri, colIndex, {
-                right: [borderStyle.right[0], borderStyle.right[1]]
-            }, sheetIndex);
-        }
-    });
-}
-
-function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }) {
+function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }, exchangeRate) {
     const excludedOperations = new Set([
         "Пересчёт кассы",
         "Перевод (получаем на счёт)",
@@ -422,7 +404,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     ]);
     const uniqueOperations = new Set();
     const operationSums = {};
-    const exchangeRate = getExchangeRate(filteredRecordsDB2); // Предполагается, что filteredRecordsDB2 доступен
 
     let rowIndex = 28;
     const totalSums = {
@@ -548,10 +529,10 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     rowIndex++;
 
     setCellText(rowIndex, 0, "Текущий курс USD/RUB:", 0);
-    // Не устанавливаем формат для текста
+
     if (exchangeRate !== null) {
         setCellText(rowIndex, 1, exchangeRate.toFixed(2), 0);
-        setCellStyle(rowIndex, 1, 'format', 'text'); // Формат 'text' для курса
+        setCellStyle(rowIndex, 1, 'format', 'rub');
     }
 
     const exchangeRateRowIndex = rowIndex + 1;
@@ -560,56 +541,53 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     const cashInColLetter = String.fromCharCode(65 + cashInColIndex);
     setCellText(25, cashInColIndex, `=${cashInColLetter}11*B${exchangeRateRowIndex}`, 0);
-    setCellStyle(25, cashInColIndex, 'format', 'rub'); // Формат 'rub' для строки 25 "Cash-In//"
+    setCellStyle(25, cashInColIndex, 'format', 'rub');
 
     const totalTotalsColIndex = cashInColIndex + 1;
     setCellText(0, totalTotalsColIndex, "Итоги Итогов:", 0);
-    // Не устанавливаем формат для текста
 
     const totalProcessingColLetter = String.fromCharCode(65 + colIndex);
     setCellText(25, totalTotalsColIndex, `=${totalProcessingColLetter}26+${cashInColLetter}26`, 0);
-    setCellStyle(25, totalTotalsColIndex, 'format', 'rub'); // Формат 'rub' для итогов итогов
+    setCellStyle(25, totalTotalsColIndex, 'format', 'rub'); 
 
     // === Итоговые строки для DB 2 ===
 
     setCellText(rowIndex, 0, "$ Итого: фикс косты на поднаправление", 0);
-    // Не устанавливаем формат для текста
-    setCellStyle(rowIndex, 0, 'format', ''); // Убираем формат, если ранее был установлен
+    setCellStyle(rowIndex, 0, 'format', ''); 
 
     if (methodColIndexes['Переводы']) {
         const methodTotalColIndex = methodColIndexes['Переводы'].end;
         setCellText(rowIndex, methodTotalColIndex, totalSums['Процессинг//Переводы'].toFixed(2), 0);
-        setCellStyle(rowIndex, methodTotalColIndex, 'format', 'usd'); // Формат 'usd' для суммы переводов DB 2
+        setCellStyle(rowIndex, methodTotalColIndex, 'format', 'usd');
     }
     if (methodColIndexes['Наличка']) {
         const methodTotalColIndex = methodColIndexes['Наличка'].end;
         setCellText(rowIndex, methodTotalColIndex, totalSums['Процессинг//Наличка'].toFixed(2), 0);
-        setCellStyle(rowIndex, methodTotalColIndex, 'format', 'usd'); // Формат 'usd' для суммы налички DB 2
+        setCellStyle(rowIndex, methodTotalColIndex, 'format', 'usd');
     }
     setCellText(rowIndex, colIndex, (totalSums['Итого']).toFixed(2), 0);
-    setCellStyle(rowIndex, colIndex, 'format', 'usd'); // Формат 'usd' для общей суммы DB 2
+    setCellStyle(rowIndex, colIndex, 'format', 'usd'); 
 
     rowIndex++;
     setCellText(rowIndex, 0, "₽ Итого: фикс косты на поднаправление", 0);
-    // Не устанавливаем формат для текста
-    setCellStyle(rowIndex, 0, 'format', ''); // Убираем формат, если ранее был установлен
+    setCellStyle(rowIndex, 0, 'format', ''); 
 
     if (exchangeRate !== null) {
         if (methodColIndexes['Переводы']) {
             const methodTotalColIndex = methodColIndexes['Переводы'].end;
             const totalInRublesПереводы = (totalSums['Процессинг//Переводы'] * exchangeRate).toFixed(2);
             setCellText(rowIndex, methodTotalColIndex, totalInRublesПереводы, 0);
-            setCellStyle(rowIndex, methodTotalColIndex, 'format', 'rub'); // Формат 'rub' для суммы переводов в рублях DB 2
+            setCellStyle(rowIndex, methodTotalColIndex, 'format', 'rub'); 
         }
         if (methodColIndexes['Наличка']) {
             const methodTotalColIndex = methodColIndexes['Наличка'].end;
             const totalInRublesНаличka = (totalSums['Процессинг//Наличка'] * exchangeRate).toFixed(2);
             setCellText(rowIndex, methodTotalColIndex, totalInRublesНаличka, 0);
-            setCellStyle(rowIndex, methodTotalColIndex, 'format', 'rub'); // Формат 'rub' для суммы налички в рублях DB 2
+            setCellStyle(rowIndex, methodTotalColIndex, 'format', 'rub'); 
         }
-        const totalInRubles = (totalSums['Итого'] * exchangeRate).toFixed(2);
-        setCellText(rowIndex, colIndex, totalInRubles, 0);
-        setCellStyle(rowIndex, colIndex, 'format', 'rub'); // Формат 'rub' для общей суммы в рублях DB 2
+        const totalInRubles = (totalSums['Итого'] + cashInTotalSums['Итого']) * exchangeRate;
+        setCellText(rowIndex, colIndex, totalInRubles.toFixed(2), 0);
+        setCellStyle(rowIndex, colIndex, 'format', 'rub');
     } else {
         console.warn('Exchange rate is not available for the рубль calculation.');
     }
@@ -618,13 +596,12 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     rowIndex++;
     setCellText(rowIndex, 0, "₽ DB 2", 0);
-    // Не устанавливаем формат для текста
-    setCellStyle(rowIndex, 0, 'format', ''); // Убираем формат, если ранее был установлен
+    setCellStyle(rowIndex, 0, 'format', '');
 
     const totalColLetter2 = String.fromCharCode(65 + colIndex);
     const db2Formula = `=${totalColLetter2}26 - ${totalColLetter2}${rubleSubTotalRowIndex}`;
     setCellText(rowIndex, colIndex, db2Formula, 0);
-    setCellStyle(rowIndex, colIndex, 'format', 'rub'); // Формат 'rub' для формулы DB 2
+    setCellStyle(rowIndex, colIndex, 'format', 'rub');
 
     // === Отступ двух строк и переходим к DB 3 ===
     rowIndex += 2;
@@ -652,11 +629,10 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     let processingTotalSum = 0;
     Object.keys(processingOperations).forEach(operation => {
         setCellText(rowIndex, 0, operation, 0);
-        // Не устанавливаем формат для названия операции
 
         const operationSum = processingOperations[operation].toFixed(2);
         setCellText(rowIndex, colIndex, operationSum, 0);
-        setCellStyle(rowIndex, colIndex, 'format', 'usd'); // Формат 'usd' для суммы операции
+        setCellStyle(rowIndex, colIndex, 'format', 'usd');
         processingTotalSum += parseFloat(operationSum);
         rowIndex++;
     });
@@ -666,40 +642,44 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     // === Итоговые строки для DB 3 ===
 
     setCellText(rowIndex, 0, "$ Итого: фикс косты на направление", 0);
-    // Не устанавливаем формат для текста
-    setCellStyle(rowIndex, 0, 'format', ''); // Убираем формат, если ранее был установлен
+    setCellStyle(rowIndex, 0, 'format', '');
 
-    const totalProcessingAndCashInSum = processingTotalSum + cashInTotalSums['Cash-In//'];
-    setCellText(rowIndex, colIndex, totalProcessingAndCashInSum.toFixed(2), 0);
-    setCellStyle(rowIndex, colIndex, 'format', 'usd'); // Формат 'usd' для общей суммы DB 3
+    const totalProcessingSumOnly = processingTotalSum;
+    setCellText(rowIndex, colIndex, totalProcessingSumOnly.toFixed(2), 0);
+    setCellStyle(rowIndex, colIndex, 'format', 'usd');
 
+    let cashInSum = 0;
     if (methodColIndexes['Cash-In//']) {
-        setCellText(rowIndex, cashInColIndex, cashInTotalSums['Cash-In//'].toFixed(2), 0);
-        setCellStyle(rowIndex, cashInColIndex, 'format', 'usd'); // Формат 'usd' для операций в колонке "Cash-In//"
+        cashInSum = cashInTotalSums['Cash-In//'];
+        setCellText(rowIndex, cashInColIndex, cashInSum.toFixed(2), 0);
+        setCellStyle(rowIndex, cashInColIndex, 'format', 'usd');
     }
 
-    setCellText(rowIndex, totalTotalsColIndex, totalProcessingAndCashInSum.toFixed(2), 0);
-    setCellStyle(rowIndex, totalTotalsColIndex, 'format', 'rub'); // Формат 'rub' для итогов итогов DB 3
+    const totalTotalsSum = totalProcessingSumOnly + cashInSum;
+    setCellText(rowIndex, totalTotalsColIndex, totalTotalsSum.toFixed(2), 0);
+    setCellStyle(rowIndex, totalTotalsColIndex, 'format', 'usd');
 
     rowIndex++;
+
+
     setCellText(rowIndex, 0, "₽ Итого: фикс косты на направление", 0);
-    // Не устанавливаем формат для текста
-    setCellStyle(rowIndex, 0, 'format', ''); // Убираем формат, если ранее был установлен
+    setCellStyle(rowIndex, 0, 'format', '');
 
     if (exchangeRate !== null) {
-        const totalInRublesProcessing = (totalProcessingAndCashInSum * exchangeRate).toFixed(2);
+        const totalInRublesProcessing = (totalProcessingSumOnly * exchangeRate).toFixed(2);
+        const totalInRublesCashIn = (cashInTotalSums['Cash-In//'] * exchangeRate).toFixed(2);
+        const totalInRublesTotal = (totalSums['Итого'] + cashInTotalSums['Итого']) * exchangeRate;
+
         setCellText(rowIndex, colIndex, totalInRublesProcessing, 0);
-        setCellStyle(rowIndex, colIndex, 'format', 'rub'); // Формат 'rub' для общей суммы в рублях DB 3
+        setCellStyle(rowIndex, colIndex, 'format', 'rub');
 
         if (methodColIndexes['Cash-In//']) {
-            const totalInRublesCashIn = (cashInTotalSums['Cash-In//'] * exchangeRate).toFixed(2);
             setCellText(rowIndex, cashInColIndex, totalInRublesCashIn, 0);
-            setCellStyle(rowIndex, cashInColIndex, 'format', 'rub'); // Формат 'rub' для суммы Cash-In в рублях DB 3
-
-            const totalInRublesTotal = parseFloat(totalInRublesProcessing) + parseFloat(totalInRublesCashIn);
-            setCellText(rowIndex, totalTotalsColIndex, totalInRublesTotal.toFixed(2), 0);
-            setCellStyle(rowIndex, totalTotalsColIndex, 'format', 'rub'); // Формат 'rub' для общей суммы итогов DB 3
+            setCellStyle(rowIndex, cashInColIndex, 'format', 'rub');
         }
+
+        setCellText(rowIndex, totalTotalsColIndex, totalInRublesTotal.toFixed(2), 0);
+        setCellStyle(rowIndex, totalTotalsColIndex, 'format', 'rub');
     } else {
         console.warn('Exchange rate is not available for the рубль calculation.');
     }
@@ -708,26 +688,25 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     rowIndex++;
     setCellText(rowIndex, 0, "₽ DB 3", 0);
-    // Не устанавливаем формат для текста
-    setCellStyle(rowIndex, 0, 'format', ''); // Убираем формат, если ранее был установлен
+    setCellStyle(rowIndex, 0, 'format', '');
 
     if (exchangeRate !== null) {
         const formulaCashInDB3 = `=${cashInColLetter}26 - ${cashInColLetter}${rubleTotalRowIndex}`;
         setCellText(rowIndex, cashInColIndex, formulaCashInDB3, 0);
-        setCellStyle(rowIndex, cashInColIndex, 'format', 'rub'); // Формат 'rub' для формулы Cash-In DB 3
+        setCellStyle(rowIndex, cashInColIndex, 'format', 'rub');
     }
 
     const db3Formula = `=${totalColLetter2}${rubleSubTotalRowIndex + 1} - ${totalColLetter2}${rubleTotalRowIndex}`;
     setCellText(rowIndex, colIndex, db3Formula, 0);
-    setCellStyle(rowIndex, colIndex, 'format', 'rub'); // Формат 'rub' для формулы DB 3
+    setCellStyle(rowIndex, colIndex, 'format', 'rub');
 
     const cashInDB3ColLetter = cashInColLetter;
     setCellText(rowIndex, totalTotalsColIndex, `=${totalColLetter2}${rowIndex + 1}+${cashInDB3ColLetter}${rowIndex + 1}`, 0);
-    setCellStyle(rowIndex, totalTotalsColIndex, 'format', 'rub'); // Формат 'rub' для итогов итогов DB 3
+    setCellStyle(rowIndex, totalTotalsColIndex, 'format', 'rub');
 
     // === Добавление Правых Границ для Методов ===
-    const borderStartRow = 0; // Начальная строка, с которой начинаются методы
-    const borderEndRow = rowIndex; // Последняя строка после рендеринга
+    const borderStartRow = 0;
+    const borderEndRow = rowIndex;
 
     Object.values(methodColIndexes).forEach(({ end: lastColIndex }) => {
         for (let ri = borderStartRow; ri <= borderEndRow; ri++) {
@@ -739,28 +718,25 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     // === Добавление Правых Границ для Дополнительных Колонок ===
 
-    // Определяем список колонок, для которых нужно установить правые границы
     const additionalBordersColIndexes = [
-        0, // Первый столбец ("Статья")
-        colIndex, // Колонка "итого Процессинг"
-        cashInColIndex, // Колонка "Cash-In//"
-        totalTotalsColIndex // Колонка "Итоги Итогов:"
+        0, 
+        colIndex, 
+        cashInColIndex, 
+        totalTotalsColIndex 
     ];
 
-    // Устанавливаем толстые границы для указанных колонок
     additionalBordersColIndexes.forEach(targetColIndex => {
         for (let ri = borderStartRow; ri <= borderEndRow; ri++) {
-            // Определяем, какую границу использовать: 'thick' или 'thin'
             let borderStyle;
             if (
-                targetColIndex === 0 || // "Статья"
-                targetColIndex === colIndex || // "итого Процессинг"
-                targetColIndex === cashInColIndex || // "Cash-In//"
-                targetColIndex === totalTotalsColIndex // "Итоги Итогов:"
+                targetColIndex === 0 || 
+                targetColIndex === colIndex || 
+                targetColIndex === cashInColIndex || 
+                targetColIndex === totalTotalsColIndex 
             ) {
-                borderStyle = getBorderStyle('thick'); // Толстая граница
+                borderStyle = getBorderStyle('thick'); 
             } else {
-                borderStyle = getBorderStyle('thin'); // Тонкая граница (на всякий случай)
+                borderStyle = getBorderStyle('thin'); 
             }
 
             setCellBorder(ri, targetColIndex, {
@@ -770,10 +746,10 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     });
 
     // === Добавление Тонких Горизонтальных Линий Под Каждым DB ===
-    // Точное отслеживание строк DB1, DB2 и DB3
+
     const db1Row = 25;
-    const db2Row = rubleSubTotalRowIndex; // Строка под "₽ DB 2"
-    const db3Row = rowIndex; // Строка под "₽ DB 3"
+    const db2Row = rubleSubTotalRowIndex;
+    const db3Row = rowIndex; 
 
     const dbRows = [db1Row, db2Row, db3Row];
 
@@ -784,8 +760,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
             }, 0);
         }
     });
-
-    // === Добавление Тонкой Горизонтальной Линии Под Первой Строкой (Заголовки) ===
     for (let col = 0; col <= totalTotalsColIndex; col++) {
         setCellBorder(0, col, {
             bottom: ['thin', '#000000']
