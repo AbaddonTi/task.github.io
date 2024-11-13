@@ -396,6 +396,8 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         "Вывод Слава",
         "Вывод Patek",
         "Выплаты Consulting",
+        "Доход от рефералов",
+        "Расходы на дропов",
         "Перевод (снимаем с счёта)"
     ]);
     const uniqueOperations = new Set();
