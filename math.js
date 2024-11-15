@@ -244,22 +244,20 @@ function renderBankData(bankData) {
             setCellStyle(13, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
 
             setCellText(14, bankColIndex, bankProblemCountsMap[method]?.[bank] || 0, 0);
-            setCellStyle(14, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
 
             setCellText(16, bankColIndex, `=${colLetter}19/${colLetter}8*100`, 0);
-            setCellStyle(16, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
+            setCellStyle(16, bankColIndex, 'format', 'percent'); // Установка формата 'rub'
 
             setCellText(17, bankColIndex, `=${colLetter}7*${colLetter}19`, 0);
             setCellStyle(17, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
 
             setCellText(18, bankColIndex, bankBlockCountsMap[method]?.[bank] || 0, 0);
-            setCellStyle(18, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
 
             setCellText(20, bankColIndex, `=${colLetter}7*${colLetter}8`, 0);
             setCellStyle(20, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
 
             setCellText(21, bankColIndex, '0', 0);
-            setCellStyle(21, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
+            setCellStyle(21, bankColIndex, 'format', 'percent'); // Установка формата 'rub'
 
             setCellText(22, bankColIndex, `=(${colLetter}11-${colLetter}18)*${colLetter}22`, 0);
             setCellStyle(22, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
@@ -292,28 +290,26 @@ function renderBankData(bankData) {
         setCellStyle(10, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
 
         setCellText(12, totalColIndex, `=${totalColLetter}15/${totalColLetter}8*100`, 0);
-        setCellStyle(12, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
+        setCellStyle(12, totalColIndex, 'format', 'percent'); // Установка формата 'rub'
 
         setCellText(13, totalColIndex, `=SUM(${bankColLetters.map(l => l + '14').join(',')})`, 0);
         setCellStyle(13, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
 
         setCellText(14, totalColIndex, `=SUM(${bankColLetters.map(l => l + '15').join(',')})`, 0);
-        setCellStyle(14, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
 
         setCellText(16, totalColIndex, `=${totalColLetter}19/${totalColLetter}8*100`, 0);
-        setCellStyle(16, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
+        setCellStyle(16, totalColIndex, 'format', 'percent'); // Установка формата 'rub'
 
         setCellText(17, totalColIndex, `=SUM(${bankColLetters.map(l => l + '18').join(',')})`, 0);
         setCellStyle(17, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
 
         setCellText(18, totalColIndex, `=SUM(${bankColLetters.map(l => l + '19').join(',')})`, 0);
-        setCellStyle(18, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
 
         setCellText(20, totalColIndex, `=SUM(${bankColLetters.map(l => l + '21').join(',')})`, 0);
         setCellStyle(20, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
 
         setCellText(21, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '22').join(',')})`, 0);
-        setCellStyle(21, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
+        setCellStyle(21, totalColIndex, 'format', 'percent'); // Установка формата 'rub'
 
         setCellText(22, totalColIndex, `=SUM(${bankColLetters.map(l => l + '23').join(',')})`, 0);
         setCellStyle(22, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
@@ -346,28 +342,26 @@ function renderBankData(bankData) {
     setCellStyle(10, colIndex, 'format', 'rub'); // Установка формата 'rub'
 
     setCellText(12, colIndex, `=${totalColLetter}15/${totalColLetter}8*100`, 0);
-    setCellStyle(12, colIndex, 'format', 'rub'); // Установка формата 'rub'
+    setCellStyle(12, colIndex, 'format', 'percent'); // Установка формата 'rub'
 
     setCellText(13, colIndex, `=${totalColLetter}7*${totalColLetter}15`, 0);
     setCellStyle(13, colIndex, 'format', 'rub'); // Установка формата 'rub'
 
     setCellText(14, colIndex, totalProblemCount, 0);
-    setCellStyle(14, colIndex, 'format', 'rub'); // Установка формата 'rub'
 
     setCellText(16, colIndex, `=${totalColLetter}19/${totalColLetter}8*100`, 0);
-    setCellStyle(16, colIndex, 'format', 'rub'); // Установка формата 'rub'
+    setCellStyle(16, colIndex, 'format', 'percent'); // Установка формата 'rub'
 
     setCellText(17, colIndex, `=${totalColLetter}7*${totalColLetter}19`, 0);
     setCellStyle(17, colIndex, 'format', 'rub'); // Установка формата 'rub'
 
     setCellText(18, colIndex, totalBlockCount, 0);
-    setCellStyle(18, colIndex, 'format', 'rub'); // Установка формата 'rub'
 
     setCellText(20, colIndex, `=${totalColLetter}7*${totalColLetter}8`, 0);
     setCellStyle(20, colIndex, 'format', 'rub'); // Установка формата 'rub'
 
     setCellText(21, colIndex, '0', 0);
-    setCellStyle(21, colIndex, 'format', 'rub'); // Установка формата 'rub'
+    setCellStyle(21, colIndex, 'format', 'percent'); // Установка формата 'rub'
 
     setCellText(22, colIndex, `=(${totalColLetter}11-${totalColLetter}18)*${totalColLetter}22`, 0);
     setCellStyle(22, colIndex, 'format', 'rub'); // Установка формата 'rub'
