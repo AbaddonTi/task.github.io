@@ -39,78 +39,67 @@ const isDateInRange = (dateValue) => {
     return date && date >= DATE_RANGE.start && date <= DATE_RANGE.end;
 };
 
+const applyFilters = (record, filters, applyDate = true, dateField = 'Дата_BLOCK') => {
+    const { bank, dropovod, status, method, platform } = filters;
+
+    const fieldChecks = [
+        { field: 'Банк', filter: bank },
+        { field: 'Дроповод', filter: dropovod },
+        { field: 'Статус', filter: status },
+        { field: 'Метод', filter: method },
+        { field: 'Площадка', filter: platform }
+    ];
+
+    for (const { field, filter } of fieldChecks) {
+        if (filter.length === 0) continue; 
+        const recordValue = record[field];
+        const values = Array.isArray(recordValue) ? recordValue : [recordValue];
+        const hasMatch = values.some(value => filter.includes(value));
+        if (!hasMatch) return false;
+    }
+
+    if (applyDate) {
+        if (!record[dateField]) return false;
+        if (!isDateInRange(record[dateField])) return false;
+    }
+
+    return true;
+};
+
+const isExcludedDropovod = (dropovodValue) => {
+    if (Array.isArray(dropovodValue)) {
+        return dropovodValue.some(dropovod => excludedDropovods.includes(dropovod));
+    }
+    return excludedDropovods.includes(dropovodValue);
+};
+
 const applyCustomFiltersDB1 = (record) => {
     const status = Array.isArray(record['Статус']) ? record['Статус'] : [record['Статус']];
     const isInWork = FILTERS_DB1.inWork && status.includes('в работе');
 
-    const dropovodValue = record['Дроповод'];
-    const isExcludedDropovod = Array.isArray(dropovodValue)
-        ? dropovodValue.some(dropovod => excludedDropovods.includes(dropovod))
-        : excludedDropovods.includes(dropovodValue);
+    if (isExcludedDropovod(record['Дроповод'])) return false;
 
-    // Если запись "в работе" и dropovod не исключён, применяем фильтры без даты
     if (isInWork) {
-        if (isExcludedDropovod) return false;
-
-        // Применяем все фильтры кроме даты
-        const bankFilter = !FILTERS_DB1.bank.length || (Array.isArray(record['Банк']) 
-            ? record['Банк'].some(bank => FILTERS_DB1.bank.includes(bank)) 
-            : FILTERS_DB1.bank.includes(record['Банк']));
-        const dropovodFilter = !FILTERS_DB1.dropovod.length || (Array.isArray(record['Дроповод']) 
-            ? record['Дроповод'].some(dropovod => FILTERS_DB1.dropovod.includes(dropovod)) 
-            : FILTERS_DB1.dropovod.includes(record['Дроповод']));
-        const statusFilter = !FILTERS_DB1.status.length || status.some(s => FILTERS_DB1.status.includes(s));
-        const methodFilter = !FILTERS_DB1.method.length || (Array.isArray(record['Метод']) 
-            ? record['Метод'].some(method => FILTERS_DB1.method.includes(method)) 
-            : FILTERS_DB1.method.includes(record['Метод']));
-        const platformFilter = !FILTERS_DB1.platform.length || (Array.isArray(record['Площадка']) 
-            ? record['Площадка'].some(platform => FILTERS_DB1.platform.includes(platform)) 
-            : FILTERS_DB1.platform.includes(record['Площадка']));
-
-        return bankFilter && dropovodFilter && statusFilter && methodFilter && platformFilter;
-    }
-
-    // Для остальных записей применяем все фильтры включая дату
-    if (!record['Дата_BLOCK'] && !record['Приёмка']) return false;
-
-    let applicableDateField;
-    if (status.includes('проблема')) {
-        applicableDateField = 'Приёмка';
+        return applyFilters(record, FILTERS_DB1, false);
     } else {
-        applicableDateField = 'Дата_BLOCK';
+        const applicableDateField = status.includes('проблема') ? 'Приёмка' : 'Дата_BLOCK';
+        return applyFilters(record, FILTERS_DB1, true, applicableDateField);
     }
-
-    const dateFilter = isDateInRange(record[applicableDateField]);
-
-    const bankFilter = !FILTERS_DB1.bank.length || (Array.isArray(record['Банк']) 
-        ? record['Банк'].some(bank => FILTERS_DB1.bank.includes(bank)) 
-        : FILTERS_DB1.bank.includes(record['Банк']));
-    const dropovodFilter = !FILTERS_DB1.dropovod.length || (Array.isArray(record['Дроповод']) 
-        ? record['Дроповод'].some(dropovod => FILTERS_DB1.dropovod.includes(dropovod)) 
-        : FILTERS_DB1.dropovod.includes(record['Дроповод']));
-    const statusFilter = !FILTERS_DB1.status.length || status.some(s => FILTERS_DB1.status.includes(s));
-    const methodFilter = !FILTERS_DB1.method.length || (Array.isArray(record['Метод']) 
-        ? record['Метод'].some(method => FILTERS_DB1.method.includes(method)) 
-        : FILTERS_DB1.method.includes(record['Метод']));
-    const platformFilter = !FILTERS_DB1.platform.length || (Array.isArray(record['Площадка']) 
-        ? record['Площадка'].some(platform => FILTERS_DB1.platform.includes(platform)) 
-        : FILTERS_DB1.platform.includes(record['Площадка']));
-
-    const excludedDropovodFilter = !isExcludedDropovod;
-
-    return dateFilter && bankFilter && dropovodFilter && statusFilter && methodFilter && platformFilter && excludedDropovodFilter;
 };
 
 const applyCustomFiltersDB2 = (record) => {
     const dateFilter = isDateInRange(record['Бухгалтерия_Дата']);
     if (!dateFilter) return false;
 
-    const projectFilter = !FILTERS_DB2.project.length || (Array.isArray(record['Бухгалтерия_Проект']) 
-        ? record['Бухгалтерия_Проект'].some(project => FILTERS_DB2.project.includes(project)) 
-        : FILTERS_DB2.project.includes(record['Бухгалтерия_Проект']));
-    const operationFilter = !FILTERS_DB2.operation.length || (Array.isArray(record['Бухгалтерия_Операция']) 
-        ? record['Бухгалтерия_Операция'].some(operation => FILTERS_DB2.operation.includes(operation)) 
-        : FILTERS_DB2.operation.includes(record['Бухгалтерия_Операция']));
+    const { project, operation } = FILTERS_DB2;
+
+    const projectFilter = project.length === 0 || (Array.isArray(record['Бухгалтерия_Проект']) 
+        ? record['Бухгалтерия_Проект'].some(p => project.includes(p)) 
+        : project.includes(record['Бухгалтерия_Проект']));
+
+    const operationFilter = operation.length === 0 || (Array.isArray(record['Бухгалтерия_Операция']) 
+        ? record['Бухгалтерия_Операция'].some(o => operation.includes(o)) 
+        : operation.includes(record['Бухгалтерия_Операция']));
 
     return projectFilter && operationFilter;
 };
