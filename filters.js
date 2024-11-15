@@ -10,7 +10,8 @@ const FILTERS_DB1 = {
     dropovod: [],
     status: [],
     method: [],
-    platform: []
+    platform: [],
+    inWork: false 
 };
 
 const FILTERS_DB2 = {
