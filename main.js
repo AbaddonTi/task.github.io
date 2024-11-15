@@ -42,8 +42,6 @@ function getExchangeRate(records) {
     return null;
 }
 
-
-// Функция фильтрации и рендеринга данных
 function applyFiltersAndRender() {
     const filteredRecordsDB1 = mappedRecords.filter(applyCustomFiltersDB1);
     const filteredRecordsDB2 = mappedRecords.filter(applyCustomFiltersDB2);
@@ -61,10 +59,7 @@ function applyFiltersAndRender() {
     ]);
     s.reRender();
 
-    // После загрузки данных, инициализируем лист 'DB'
     initializeSpreadsheetDB();
-
-    // Получение уникальных значений из колонки "Банк" и их отображение начиная со второй колонки первой строки листа 'DB'
     renderUniqueBankValues(filteredRecordsDB1, filteredRecordsDB2);
 }
 
@@ -125,6 +120,11 @@ function setupFilterEventListeners() {
                 break;
         }
 
+        applyFiltersAndRender();
+    });
+
+    $('#in-work-filter').on('change', function() {
+        FILTERS_DB1.inWork = $(this).is(':checked');
         applyFiltersAndRender();
     });
 
