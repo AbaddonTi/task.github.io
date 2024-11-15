@@ -34,6 +34,8 @@ function populateFilterOptions() {
     $('.selectpicker').selectpicker('refresh');
 }
 
+// UI.js
+
 function setupFilterEventListeners() {
     $('.selectpicker').on('changed.bs.select', function(e, clickedIndex, isSelected, previousValue) {
         const selectId = $(this).attr('id');
@@ -90,9 +92,15 @@ function setupFilterEventListeners() {
             dateFormat: "d.m.Y",
             onClose: function(selectedDates) {
                 DATE_RANGE.start = selectedDates[0] || null;
-                DATE_RANGE.end = selectedDates[1] || null;
+                if (selectedDates[1]) {
+                    DATE_RANGE.end = new Date(selectedDates[1]);
+                    DATE_RANGE.end.setHours(23, 59, 59, 999);
+                } else {
+                    DATE_RANGE.end = null;
+                }
                 applyFiltersAndRender();
             }
         });
     }
 }
+
