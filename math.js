@@ -40,7 +40,7 @@ function setCellText(row, col, text, sheetIndex = 0) {
 
 /********** INITIALIZATION FUNCTIONS **********/
 const defaultBorderStyle = { style: 'thin', color: '#000000' };
-const thickBorderStyle = { style: 'thick', color: '#000000' }; // Толстая граница
+const thickBorderStyle = { style: 'thick', color: '#000000' }; 
 
 const getBorderStyle = style => ({
     top: [style, defaultBorderStyle.color],
@@ -50,22 +50,11 @@ const getBorderStyle = style => ({
 });
 
 function initializeSpreadsheetDB() {
-    // Установка толстых вертикальных границ для первых двух ячеек
     [[0, 0], [0, 1]].forEach(([row, col]) => setCellBorder(row, col, getBorderStyle('thick')));
-
-    // Установка заголовков "Статья" и "Процессинг"
     [[0, 0, 'Статья'], [0, 1, 'Процессинг']].forEach(([row, col, text]) => setCellText(row, col, text, 0));
-
-    // Установка ширины колонок
     [[0, 150], [1, 150]].forEach(([col, width]) => setColumnWidth(col, width, 0));
-
-    // Установка высоты первой строки
     setRowHeight(0, 30, 0);
-
-    // Включение переноса текста для первых двух ячеек
     [[0, 0], [0, 1]].forEach(([row, col]) => enableTextWrap(row, col, 0));
-
-    // Установка текста для различных строк
     [
         { row: 6, text: 'Цена закуп. карты' },
         { row: 7, text: 'Кол-во карт' },
@@ -88,11 +77,10 @@ function initializeSpreadsheetDB() {
 /********** DYNAMIC RENDERING FUNCTIONS **********/
 function renderUniqueBankValues(filteredRecordsDB1, filteredRecordsDB2) {
     const bankData = processBankRecords(filteredRecordsDB1);
-    const { colIndex, methodColIndexes } = renderBankData(bankData); // Деструктуризация
+    const { colIndex, methodColIndexes } = renderBankData(bankData); 
     renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }, exchangeRate); 
     s.reRender();
 }
-
 
 
 function processBankRecords(filteredRecordsDB1) {
@@ -222,7 +210,7 @@ function renderBankData(bankData) {
             if (prices && prices.length) {
                 const averagePrice = (prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2);
                 setCellText(6, bankColIndex, averagePrice, 0);
-                setCellStyle(6, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
+                setCellStyle(6, bankColIndex, 'format', 'rub'); 
             }
 
             setCellText(7, bankColIndex, bankCountsMap[method][bank], 0);
@@ -231,146 +219,143 @@ function renderBankData(bankData) {
             if (profits && profits.length) {
                 const averageProfit = (profits.reduce((a, b) => a + b, 0) / profits.length).toFixed(2);
                 setCellText(8, bankColIndex, averageProfit, 0);
-                setCellStyle(8, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
+                setCellStyle(8, bankColIndex, 'format', 'rub'); 
             }
 
             setCellText(10, bankColIndex, `=${colLetter}8*${colLetter}9`, 0);
-            setCellStyle(10, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
+            setCellStyle(10, bankColIndex, 'format', 'rub'); 
 
             setCellText(12, bankColIndex, `=${colLetter}15/${colLetter}8*100`, 0);
-            setCellStyle(12, bankColIndex, 'format', 'percent'); // Установка формата 'rub'
+            setCellStyle(12, bankColIndex, 'format', 'percent'); 
 
             setCellText(13, bankColIndex, `=${colLetter}7*${colLetter}15`, 0);
-            setCellStyle(13, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
+            setCellStyle(13, bankColIndex, 'format', 'rub'); 
 
             setCellText(14, bankColIndex, bankProblemCountsMap[method]?.[bank] || 0, 0);
 
             setCellText(16, bankColIndex, `=${colLetter}19/${colLetter}8*100`, 0);
-            setCellStyle(16, bankColIndex, 'format', 'percent'); // Установка формата 'rub'
+            setCellStyle(16, bankColIndex, 'format', 'percent'); 
 
             setCellText(17, bankColIndex, `=${colLetter}7*${colLetter}19`, 0);
-            setCellStyle(17, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
+            setCellStyle(17, bankColIndex, 'format', 'rub'); 
 
             setCellText(18, bankColIndex, bankBlockCountsMap[method]?.[bank] || 0, 0);
 
             setCellText(20, bankColIndex, `=${colLetter}7*${colLetter}8`, 0);
-            setCellStyle(20, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
+            setCellStyle(20, bankColIndex, 'format', 'rub'); 
 
             setCellText(21, bankColIndex, '0', 0);
-            setCellStyle(21, bankColIndex, 'format', 'percent'); // Установка формата 'rub'
+            setCellStyle(21, bankColIndex, 'format', 'percent'); 
 
             setCellText(22, bankColIndex, `=(${colLetter}11-${colLetter}18)*${colLetter}22`, 0);
-            setCellStyle(22, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
+            setCellStyle(22, bankColIndex, 'format', 'rub'); 
 
             setCellText(24, bankColIndex, `=${colLetter}14+${colLetter}18+${colLetter}21+${colLetter}23`, 0);
-            setCellStyle(24, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
+            setCellStyle(24, bankColIndex, 'format', 'rub'); 
 
             setCellText(25, bankColIndex, `=${colLetter}11-${colLetter}25`, 0);
-            setCellStyle(25, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
+            setCellStyle(25, bankColIndex, 'format', 'rub');
         });
 
         const totalColIndex = colIndex + banks.length;
         const totalColLetter = String.fromCharCode(66 + totalColIndex - 1);
         setCellText(2, totalColIndex, `Итого ${method}`, 0);
         setCellBorder(2, totalColIndex, getBorderStyle('thick'), 0);
-        // Обычно итоги являются текстом или суммой, поэтому формат 'rub' может не потребоваться
-        // Но если это сумма, можно установить формат 'rub' аналогично выше
 
         const bankColLetters = banks.map((_, index) => String.fromCharCode(66 + (colIndex + index) -1));
 
         setCellText(6, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '7').join(',')})`, 0);
-        setCellStyle(6, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
+        setCellStyle(6, totalColIndex, 'format', 'rub'); 
 
         setCellText(7, totalColIndex, `=SUM(${bankColLetters.map(l => l + '8').join(',')})`, 0);
 
         setCellText(8, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '9').join(',')})`, 0);
-        setCellStyle(8, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
+        setCellStyle(8, totalColIndex, 'format', 'rub'); 
 
         setCellText(10, totalColIndex, `=SUM(${bankColLetters.map(l => l + '11').join(',')})`, 0);
-        setCellStyle(10, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
+        setCellStyle(10, totalColIndex, 'format', 'rub'); 
 
         setCellText(12, totalColIndex, `=${totalColLetter}15/${totalColLetter}8*100`, 0);
-        setCellStyle(12, totalColIndex, 'format', 'percent'); // Установка формата 'rub'
+        setCellStyle(12, totalColIndex, 'format', 'percent'); 
 
         setCellText(13, totalColIndex, `=SUM(${bankColLetters.map(l => l + '14').join(',')})`, 0);
-        setCellStyle(13, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
+        setCellStyle(13, totalColIndex, 'format', 'rub'); 
 
         setCellText(14, totalColIndex, `=SUM(${bankColLetters.map(l => l + '15').join(',')})`, 0);
 
         setCellText(16, totalColIndex, `=${totalColLetter}19/${totalColLetter}8*100`, 0);
-        setCellStyle(16, totalColIndex, 'format', 'percent'); // Установка формата 'rub'
+        setCellStyle(16, totalColIndex, 'format', 'percent'); 
 
         setCellText(17, totalColIndex, `=SUM(${bankColLetters.map(l => l + '18').join(',')})`, 0);
-        setCellStyle(17, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
+        setCellStyle(17, totalColIndex, 'format', 'rub'); 
 
         setCellText(18, totalColIndex, `=SUM(${bankColLetters.map(l => l + '19').join(',')})`, 0);
 
         setCellText(20, totalColIndex, `=SUM(${bankColLetters.map(l => l + '21').join(',')})`, 0);
-        setCellStyle(20, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
+        setCellStyle(20, totalColIndex, 'format', 'rub');
 
         setCellText(21, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '22').join(',')})`, 0);
-        setCellStyle(21, totalColIndex, 'format', 'percent'); // Установка формата 'rub'
+        setCellStyle(21, totalColIndex, 'format', 'percent'); 
 
         setCellText(22, totalColIndex, `=SUM(${bankColLetters.map(l => l + '23').join(',')})`, 0);
-        setCellStyle(22, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
+        setCellStyle(22, totalColIndex, 'format', 'rub'); 
 
         setCellText(24, totalColIndex, `=SUM(${bankColLetters.map(l => l + '25').join(',')})`, 0);
-        setCellStyle(24, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
+        setCellStyle(24, totalColIndex, 'format', 'rub'); 
 
         setCellText(25, totalColIndex, `=${totalColLetter}11-${totalColLetter}25`, 0);
-        setCellStyle(25, totalColIndex, 'format', 'rub'); // Установка формата 'rub'
+        setCellStyle(25, totalColIndex, 'format', 'rub'); 
 
         colIndex = totalColIndex + 1;
     });
 
     setCellText(0, colIndex, 'итого Процессинг', 0);
-    setCellStyle(0, colIndex, 'format', 'rub'); // Если требуется формат 'rub'
     setCellBorder(0, colIndex, getBorderStyle('thick'), 0);
     setCellBackgroundColor(0, colIndex, '#d9ead3', 0);
 
     const totalColLetter = String.fromCharCode(66 + colIndex - 1);
 
     setCellText(6, colIndex, averagePrice, 0);
-    setCellStyle(6, colIndex, 'format', 'rub'); // Установка формата 'rub'
+    setCellStyle(6, colIndex, 'format', 'rub'); 
 
     setCellText(7, colIndex, totalBanksCount, 0);
 
     setCellText(8, colIndex, averageProfit, 0);
-    setCellStyle(8, colIndex, 'format', 'rub'); // Установка формата 'rub'
+    setCellStyle(8, colIndex, 'format', 'rub'); 
 
     setCellText(10, colIndex, sumProfit, 0);
-    setCellStyle(10, colIndex, 'format', 'rub'); // Установка формата 'rub'
+    setCellStyle(10, colIndex, 'format', 'rub'); 
 
     setCellText(12, colIndex, `=${totalColLetter}15/${totalColLetter}8*100`, 0);
-    setCellStyle(12, colIndex, 'format', 'percent'); // Установка формата 'rub'
+    setCellStyle(12, colIndex, 'format', 'percent'); 
 
     setCellText(13, colIndex, `=${totalColLetter}7*${totalColLetter}15`, 0);
-    setCellStyle(13, colIndex, 'format', 'rub'); // Установка формата 'rub'
+    setCellStyle(13, colIndex, 'format', 'rub'); 
 
     setCellText(14, colIndex, totalProblemCount, 0);
 
     setCellText(16, colIndex, `=${totalColLetter}19/${totalColLetter}8*100`, 0);
-    setCellStyle(16, colIndex, 'format', 'percent'); // Установка формата 'rub'
+    setCellStyle(16, colIndex, 'format', 'percent');
 
     setCellText(17, colIndex, `=${totalColLetter}7*${totalColLetter}19`, 0);
-    setCellStyle(17, colIndex, 'format', 'rub'); // Установка формата 'rub'
+    setCellStyle(17, colIndex, 'format', 'rub'); 
 
     setCellText(18, colIndex, totalBlockCount, 0);
 
     setCellText(20, colIndex, `=${totalColLetter}7*${totalColLetter}8`, 0);
-    setCellStyle(20, colIndex, 'format', 'rub'); // Установка формата 'rub'
+    setCellStyle(20, colIndex, 'format', 'rub'); 
 
     setCellText(21, colIndex, '0', 0);
-    setCellStyle(21, colIndex, 'format', 'percent'); // Установка формата 'rub'
+    setCellStyle(21, colIndex, 'format', 'percent');
 
     setCellText(22, colIndex, `=(${totalColLetter}11-${totalColLetter}18)*${totalColLetter}22`, 0);
-    setCellStyle(22, colIndex, 'format', 'rub'); // Установка формата 'rub'
+    setCellStyle(22, colIndex, 'format', 'rub'); 
 
     setCellText(24, colIndex, `=${totalColLetter}14+${totalColLetter}18+${totalColLetter}21+${totalColLetter}23`, 0);
-    setCellStyle(24, colIndex, 'format', 'rub'); // Установка формата 'rub'
+    setCellStyle(24, colIndex, 'format', 'rub');
 
     setCellText(25, colIndex, `=${totalColLetter}11-${totalColLetter}25`, 0);
-    setCellStyle(25, colIndex, 'format', 'rub'); // Установка формата 'rub'
+    setCellStyle(25, colIndex, 'format', 'rub'); 
 
     for (let i = 1; i <= colIndex; i++) {
         setCellBackgroundColor(0, i, '#d9ead3', 0);
@@ -412,18 +397,14 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     const projectsToProcess = ['Процессинг//Переводы', 'Процессинг//Наличка'];
     const cashInProject = 'Cash-In//';
 
-    // Установка колонки "Cash-In//" если отсутствует
     if (!methodColIndexes['Cash-In//']) {
         methodColIndexes['Cash-In//'] = { start: colIndex + 1, end: colIndex + 1 };
     }
 
     const cashInColIndex = methodColIndexes['Cash-In//'].end;
     setCellText(0, cashInColIndex, "Cash-In//", 0);
-    // Убираем форматирование для текста "Cash-In//"
-
     let cashInRecountSum = 0;
 
-    // Сбор данных для пересчёта кассы
     filteredRecordsDB2.forEach(record => {
         const operation = record['Бухгалтерия_Операция'];
         const project = record['Бухгалтерия_Проект'];
@@ -436,7 +417,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         }
     });
 
-    // Установка суммы пересчёта кассы в DB2
     setCellText(10, cashInColIndex, cashInRecountSum.toFixed(2), 0);
     setCellStyle(10, cashInColIndex, 'format', 'usd'); // Формат 'usd'
 
@@ -480,14 +460,12 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         }
     });
 
-    // Заполнение DB2
     uniqueOperations.forEach(operation => {
         if (operation === "Пересчёт кассы") {
             return;
         }
 
         setCellText(currentRowIndex, 0, operation, 0);
-        // Не устанавливаем формат для названия операции
 
         const переводSum = operationSums[operation]['Процессинг//Переводы'] || 0;
         const наличкаSum = operationSums[operation]['Процессинг//Наличка'] || 0;
@@ -496,18 +474,18 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         const totalProcessingSum = (переводSum + наличкаSum).toFixed(2);
 
         setCellText(currentRowIndex, colIndex, totalProcessingSum, 0);
-        setCellStyle(currentRowIndex, colIndex, 'format', 'usd'); // Формат 'usd'
+        setCellStyle(currentRowIndex, colIndex, 'format', 'usd');
 
         if (methodColIndexes['Переводы']) {
             const methodTotalColIndex = methodColIndexes['Переводы'].end;
             setCellText(currentRowIndex, methodTotalColIndex, переводSum.toFixed(2), 0);
-            setCellStyle(currentRowIndex, methodTotalColIndex, 'format', 'usd'); // Формат 'usd'
+            setCellStyle(currentRowIndex, methodTotalColIndex, 'format', 'usd'); 
             totalSumsDB2['Процессинг//Переводы'] += переводSum;
         }
         if (methodColIndexes['Наличка']) {
             const methodTotalColIndex = methodColIndexes['Наличка'].end;
             setCellText(currentRowIndex, methodTotalColIndex, наличкаSum.toFixed(2), 0);
-            setCellStyle(currentRowIndex, methodTotalColIndex, 'format', 'usd'); // Формат 'usd'
+            setCellStyle(currentRowIndex, methodTotalColIndex, 'format', 'usd'); 
             totalSumsDB2['Процессинг//Наличка'] += наличкаSum;
         }
 
@@ -515,11 +493,10 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
         if (cashInSum !== 0) {
             setCellText(currentRowIndex, cashInColIndex, cashInSum.toFixed(2), 0);
-            setCellStyle(currentRowIndex, cashInColIndex, 'format', 'usd'); // Формат 'usd'
+            setCellStyle(currentRowIndex, cashInColIndex, 'format', 'usd'); 
             cashInTotalSumsDB2['Cash-In//'] += cashInSum;
             cashInTotalSumsDB2['Итого'] += cashInSum;
         }
-
         currentRowIndex++;
     });
 
@@ -603,9 +580,8 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellStyle(currentRowIndex, colIndex, 'format', 'rub');
 
     // === Переход к DB3 ===
-    currentRowIndex += 2; // Отступ двух строк
+    currentRowIndex += 2; 
 
-    // Инициализация для DB3
     const db3StartRowIndex = currentRowIndex;
     const processingOperationsDB3 = {};
     filteredRecordsDB2.forEach(record => {
@@ -639,7 +615,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         currentRowIndex++;
     });
 
-    currentRowIndex += 2; // Отступ двух строк
+    currentRowIndex += 2; 
 
     // === Итоговые строки для DB3 ===
 
