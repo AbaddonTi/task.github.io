@@ -47,7 +47,7 @@ function applyFiltersAndRender() {
     const filteredRecordsDB2 = mappedRecords.filter(applyCustomFiltersDB2);
 
     s.loadData([
-        { name: 'DB', rows: {} },
+        { name: 'DB', freeze: 'B5', rows: {} },
         {
             name: 'Таблица для DB 1',
             rows: createRowsData(filteredRecordsDB1, fieldsForDB1)
