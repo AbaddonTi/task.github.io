@@ -382,7 +382,6 @@ function renderBankData(bankData) {
 function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }, exchangeRate) {
     const excludedOperations = new Set([
         "Пересчёт кассы",
-        "Перевод (получаем на счёт)",
         "Внесение Слава",
         "Внесение Patek",
         "Внесение Роман",
@@ -392,6 +391,8 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         "Выплаты Consulting",
         "Доход от рефералов",
         "Расходы на дропов",
+        "Апелляция",
+        "Перевод (получаем на счёт)",
         "Перевод (снимаем с счёта)"
     ]);
     const uniqueOperations = new Set();
