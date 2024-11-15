@@ -238,7 +238,7 @@ function renderBankData(bankData) {
             setCellStyle(10, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
 
             setCellText(12, bankColIndex, `=${colLetter}15/${colLetter}8*100`, 0);
-            setCellStyle(12, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
+            setCellStyle(12, bankColIndex, 'format', 'percent'); // Установка формата 'rub'
 
             setCellText(13, bankColIndex, `=${colLetter}7*${colLetter}15`, 0);
             setCellStyle(13, bankColIndex, 'format', 'rub'); // Установка формата 'rub'
