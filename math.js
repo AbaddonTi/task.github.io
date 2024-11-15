@@ -161,6 +161,7 @@ function processBankRecords(filteredRecordsDB1) {
     };
 }
 
+
 function renderBankData(bankData) {
     const {
         bankMethodMap,
@@ -178,6 +179,7 @@ function renderBankData(bankData) {
         totalBlockCount
     } = bankData;
 
+    // Вспомогательные функции
     const formatCell = (row, col, value, formatType) => {
         setCellText(row, col, value, 0);
         if (formatType) {
@@ -191,6 +193,7 @@ function renderBankData(bankData) {
 
     const calculateAverage = (sum, count) => (count > 0 ? (sum / count).toFixed(2) : '0.00');
 
+    // Расчёты средних значений
     const averagePrice = calculateAverage(totalPrices, totalPricesCount);
     const averageProfit = calculateAverage(totalProfits, totalProfitsCount);
     const sumProfit = totalProfits.toFixed(2);
@@ -205,6 +208,7 @@ function renderBankData(bankData) {
 
         methodColIndexes[method] = { start: methodStartCol, end: methodEndCol };
 
+        // Заголовок метода
         formatCell(2, methodStartCol, method);
         applyBorder(2, methodStartCol, 'thick');
         for (let i = methodStartCol; i <= methodEndCol; i++) {
@@ -212,12 +216,14 @@ function renderBankData(bankData) {
             applyBackground(0, i, '#d9ead3');
         }
 
+        // Обработка каждого банка
         banks.forEach((bank, index) => {
             const bankCol = colIndex + index;
-            const colLetter = String.fromCharCode(66 + bankCol - 1); 
+            const colLetter = String.fromCharCode(66 + bankCol - 1); // B=66
 
             formatCell(3, bankCol, bank);
 
+            // Средняя цена
             const prices = bankPricesMap[method][bank] || [];
             if (prices.length) {
                 const avgPrice = calculateAverage(prices.reduce((a, b) => a + b, 0), prices.length);
@@ -226,7 +232,10 @@ function renderBankData(bankData) {
                 formatCell(6, bankCol, '0.00', 'rub');
             }
 
+            // Количество банков
             formatCell(7, bankCol, bankCountsMap[method][bank]);
+
+            // Средняя прибыль
             const profits = bankProfitsMap[method][bank] || [];
             if (profits.length) {
                 const avgProfit = calculateAverage(profits.reduce((a, b) => a + b, 0), profits.length);
@@ -235,6 +244,7 @@ function renderBankData(bankData) {
                 formatCell(8, bankCol, '0.00', 'rub');
             }
 
+            // Формулы и стили для остальных строк
             const formulaMap = {
                 10: { formula: `=${colLetter}8*${colLetter}9`, format: 'rub' },
                 12: { formula: `=${colLetter}15/${colLetter}8*100`, format: 'percent' },
@@ -259,6 +269,7 @@ function renderBankData(bankData) {
             });
         });
 
+        // Итого по методу
         const totalCol = colIndex + banks.length;
         const totalColLetter = String.fromCharCode(66 + totalCol - 1);
 
@@ -293,9 +304,11 @@ function renderBankData(bankData) {
             }
         });
 
+        // Обновление colIndex для следующего метода
         colIndex = totalCol + 1;
     });
 
+    // Итого Процессинг
     formatCell(0, colIndex, 'итого Процессинг');
     applyBorder(0, colIndex, 'thick');
     applyBackground(0, colIndex, '#d9ead3');
@@ -328,12 +341,13 @@ function renderBankData(bankData) {
         }
     });
 
-    for (let i = 1; i <= colIndex; i++) {
-        applyBackground(0, i, '#d9ead3');
+   for (let i = 1; i <= colIndex; i++) {
+        applyBackground(0, i, '#d9ead3', 0);
     }
 
     return { colIndex, methodColIndexes };
 }
+
 
 
 
