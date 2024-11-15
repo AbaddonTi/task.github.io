@@ -38,6 +38,12 @@ const isDateInRange = (dateValue) => {
 };
 
 const applyCustomFiltersDB1 = (record) => {
+    
+    const isInWork = FILTERS_DB1.inWork && record['Статус'] === 'в работе';
+    if (isInWork) {
+        return true;
+    }
+    
     if (!record['Дата_BLOCK'] && !record['Приёмка']) return false;
 
     let status = record['Статус'];
