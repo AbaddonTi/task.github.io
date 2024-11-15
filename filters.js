@@ -19,6 +19,8 @@ const FILTERS_DB2 = {
     operation: []
 };
 
+const excludedDropovods = ['Consult Kayos', 'Consult Titan'];
+
 const parseDate = (value) => {
     if (!value) return null;
     if (value instanceof Date) return value;
@@ -38,12 +40,13 @@ const isDateInRange = (dateValue) => {
 };
 
 const applyCustomFiltersDB1 = (record) => {
-    
     const isInWork = FILTERS_DB1.inWork && record['Статус'] === 'в работе';
+
     if (isInWork) {
-        return true;
+        const dropovodValue = record['Дроповод'];
+        return !(Array.isArray(dropovodValue) ? dropovodValue.some(dropovod => excludedDropovods.includes(dropovod)) : excludedDropovods.includes(dropovodValue));
     }
-    
+
     if (!record['Дата_BLOCK'] && !record['Приёмка']) return false;
 
     let status = record['Статус'];
@@ -61,8 +64,6 @@ const applyCustomFiltersDB1 = (record) => {
     const methodFilter = !FILTERS_DB1.method.length || (Array.isArray(record['Метод']) ? record['Метод'].some(method => FILTERS_DB1.method.includes(method)) : FILTERS_DB1.method.includes(record['Метод']));
     const platformFilter = !FILTERS_DB1.platform.length || (Array.isArray(record['Площадка']) ? record['Площадка'].some(platform => FILTERS_DB1.platform.includes(platform)) : FILTERS_DB1.platform.includes(record['Площадка']));
 
-    // Исключаем записи, где 'Дроповод' равен 'Consult Kayos' или 'Consult Titan' 
-    const excludedDropovods = ['Consult Kayos', 'Consult Titan'];
     const dropovodValue = record['Дроповод'];
     const excludedDropovodFilter = !(Array.isArray(dropovodValue) ? dropovodValue.some(dropovod => excludedDropovods.includes(dropovod)) : excludedDropovods.includes(dropovodValue));
 
