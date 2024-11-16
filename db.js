@@ -457,6 +457,10 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     // Вместо этого сразу переходим к отображению итогов в RUB
 
+    // Удаление строк "Итого: фикс косты на поднаправление" и "Итого: фикс косты на направление"
+    // Вместо этого используем только строки с рублевыми итогами
+
+    // Устанавливаем только итоговые строки в RUB
     setCellText(currentRowIndex, 0, "Итого: фикс косты на поднаправление", 0);
     setCellStyle(currentRowIndex, 0, 'format', ''); 
 
@@ -474,8 +478,8 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellStyle(currentRowIndex, colIndex, 'format', 'rub'); 
 
     currentRowIndex++;
-    setCellText(currentRowIndex, 0, "₽ Итого: фикс косты на поднаправление", 0);
-    setCellStyle(currentRowIndex, 0, 'format', ''); 
+    setCellText(currentRowIndex, 0, "₽ Итого: фикс косты на направление", 0);
+    setCellStyle(currentRowIndex, 0, 'format', '');
 
     if (exchangeRate !== null) {
         if (methodColIndexes['Переводы']) {
