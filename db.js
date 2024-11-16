@@ -328,7 +328,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellText(0, cashInColIndex, "Cash-In//", 0);
     let cashInRecountSum = 0;
 
-    // Суммирование "Пересчёт кассы" для Cash-In//
     filteredRecordsDB2.forEach(record => {
         const operation = record['Бухгалтерия_Операция'];
         const project = record['Бухгалтерия_Проект'];
@@ -341,10 +340,8 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         }
     });
 
-    // Конвертация суммы "Пересчёт кассы" в RUB и установка в ячейку
-    const cashInRecountSumRub = exchangeRate ? (cashInRecountSum * exchangeRate).toFixed(2) : cashInRecountSum.toFixed(2);
-    setCellText(10, cashInColIndex, cashInRecountSumRub, 0);
-    setCellStyle(10, cashInColIndex, 'format', 'rub'); // Формат 'rub'
+    setCellText(10, cashInColIndex, cashInRecountSum.toFixed(2), 0);
+    setCellStyle(10, cashInColIndex, 'format', 'rub'); // Изменено на 'rub'
 
     // === Обработка операций для DB2 ===
     filteredRecordsDB2.forEach(record => {
@@ -445,19 +442,16 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     currentRowIndex++;
 
-    // Удаляем формулы конвертации для Cash-In// и устанавливаем значение напрямую
-    // Вместо формулы, устанавливаем уже конвертированное значение
-    // setCellText(25, cashInColIndex, `=${cashInColLetter}11*B${exchangeRateRowIndexDB2}`, 0);
-    // setCellStyle(25, cashInColIndex, 'format', 'rub');
-
-    // Предполагая, что строка 25 уже обработана выше, удаляем эту часть
+    // Формула для Cash-In// в DB2
+    const cashInColLetter = String.fromCharCode(65 + cashInColIndex);
+    setCellText(25, cashInColIndex, `=${cashInColLetter}11*B${exchangeRateRowIndexDB2}`, 0);
+    setCellStyle(25, cashInColIndex, 'format', 'rub');
 
     const totalTotalsColIndex = cashInColIndex + 1;
     setCellText(0, totalTotalsColIndex, "Итоги Итогов:", 0);
 
     const totalProcessingColLetter = String.fromCharCode(65 + colIndex);
-    // Вместо формулы устанавливаем сумму напрямую
-    setCellText(25, totalTotalsColIndex, `=${totalProcessingColLetter}26 + ${cashInColLetter}26`, 0);
+    setCellText(25, totalTotalsColIndex, `=${totalProcessingColLetter}26+${cashInColLetter}26`, 0);
     setCellStyle(25, totalTotalsColIndex, 'format', 'rub'); 
 
     // === Итоговые строки для DB2 ===
@@ -480,13 +474,10 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellStyle(currentRowIndex, colIndex, 'format', 'rub'); 
 
     currentRowIndex++;
-    // Удаляем строку "$ Итого: фикс косты на поднаправление"
-    // setCellText(currentRowIndex, 0, "$ Итого: фикс косты на поднаправление", 0);
-    // setCellStyle(currentRowIndex, 0, 'format', ''); 
 
-    // Устанавливаем только RUB итоги
-    setCellText(currentRowIndex, 0, "₽ Итого: фикс косты на поднаправление", 0);
-    setCellStyle(currentRowIndex, 0, 'format', '');
+    // Удалены строки:
+    // setCellText(currentRowIndex, 0, "₽ Итого: фикс косты на поднаправление", 0);
+    // setCellStyle(currentRowIndex, 0, 'format', '');
 
     if (exchangeRate !== null) {
         if (methodColIndexes['Переводы']) {
@@ -497,7 +488,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         }
         if (methodColIndexes['Наличка']) {
             const methodTotalColIndex = methodColIndexes['Наличка'].end;
-            const totalInRublesНаличka = (totalSumsDB2['Процессинг//Наличка']).toFixed(2); // Уже в RUB
+            const totalInRublesНаличка = (totalSumsDB2['Процессинг//Наличка']).toFixed(2); // Уже в RUB
             setCellText(currentRowIndex, methodTotalColIndex, totalInRublesНаличka, 0);
             setCellStyle(currentRowIndex, methodTotalColIndex, 'format', 'rub'); 
         }
@@ -582,17 +573,14 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     currentRowIndex++;
 
-    // Удаляем строку "$ Итого: фикс косты на направление"
-    // setCellText(currentRowIndex, 0, "$ Итого: фикс косты на направление", 0);
+    // Удалены строки:
+    // setCellText(currentRowIndex, 0, "₽ Итого: фикс косты на направление", 0);
     // setCellStyle(currentRowIndex, 0, 'format', '');
-
-    setCellText(currentRowIndex, 0, "₽ Итого: фикс косты на направление", 0);
-    setCellStyle(currentRowIndex, 0, 'format', '');
 
     if (exchangeRate !== null) {
         const totalInRublesProcessingDB3 = (totalProcessingSumOnlyDB3).toFixed(2); // Уже в RUB
         const totalInRublesCashInDB3 = (cashInTotalSumsDB2['Cash-In//']).toFixed(2); // Уже в RUB
-        const totalInRublesTotalDB3 = (totalTotalsSumDB3).toFixed(2); // Уже в RUB
+        const totalInRublesTotalDB3 = totalTotalsSumDB3.toFixed(2); // Уже в RUB
 
         setCellText(currentRowIndex, colIndex, totalInRublesProcessingDB3, 0);
         setCellStyle(currentRowIndex, colIndex, 'format', 'rub');
@@ -616,13 +604,8 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     if (exchangeRate !== null) {
         // Формула для Cash-In// в DB3
-        // Вместо формулы, устанавливаем значение напрямую
-        // const formulaCashInDB3 = `=${cashInColLetter}26 - ${cashInColLetter}${rubleTotalRowIndexDB3}`;
-        // setCellText(currentRowIndex, cashInColIndex, formulaCashInDB3, 0);
-        // setCellStyle(currentRowIndex, cashInColIndex, 'format', 'rub');
-
-        // Предполагая, что сумма уже конвертирована ранее, устанавливаем её напрямую
-        setCellText(currentRowIndex, cashInColIndex, cashInSumRub, 0);
+        const formulaCashInDB3 = `=${cashInColLetter}26 - ${cashInColLetter}${rubleTotalRowIndexDB3}`;
+        setCellText(currentRowIndex, cashInColIndex, formulaCashInDB3, 0);
         setCellStyle(currentRowIndex, cashInColIndex, 'format', 'rub');
     }
 
@@ -631,7 +614,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellStyle(currentRowIndex, colIndex, 'format', 'rub');
 
     const cashInDB3ColLetter = cashInColLetter;
-    setCellText(currentRowIndex, totalTotalsColIndex, `=${totalColLetterDB2}${currentRowIndex + 1} + ${cashInDB3ColLetter}${currentRowIndex + 1}`, 0);
+    setCellText(currentRowIndex, totalTotalsColIndex, `=${totalColLetterDB2}${currentRowIndex + 1}+${cashInDB3ColLetter}${currentRowIndex + 1}`, 0);
     setCellStyle(currentRowIndex, totalTotalsColIndex, 'format', 'rub');
 
     // === Добавление Правых Границ для Методов ===
