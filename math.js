@@ -627,7 +627,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     const additionalBordersColIndexes = [
         0, 
         colIndex, 
-        cashInColIndex, 
         totalTotalsColIndex 
     ];
 
@@ -637,7 +636,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
             if (
                 targetColIndex === 0 || 
                 targetColIndex === colIndex || 
-                targetColIndex === cashInColIndex || 
                 targetColIndex === totalTotalsColIndex 
             ) {
                 borderStyle = getBorderStyle('thick'); 
