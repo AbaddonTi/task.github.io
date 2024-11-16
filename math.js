@@ -561,7 +561,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
             setCellText(currentRowIndex, methodTotalColIndex, totalInRublesНаличka, 0);
             setCellStyle(currentRowIndex, methodTotalColIndex, 'format', 'rub'); 
         }
-        const totalInRubles = (totalSumsDB2['Итого'] + cashInTotalSumsDB2['Итого']) * exchangeRate;
+        const totalInRubles = totalSumsDB2['Итого'] * exchangeRate;
         setCellText(currentRowIndex, colIndex, totalInRubles.toFixed(2), 0);
         setCellStyle(currentRowIndex, colIndex, 'format', 'rub');
     } else {
