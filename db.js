@@ -456,19 +456,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     // === Итоговые строки для DB2 ===
 
-    if (methodColIndexes['Переводы']) {
-        const methodTotalColIndex = methodColIndexes['Переводы'].end;
-        setCellText(currentRowIndex, methodTotalColIndex, totalSumsDB2['Процессинг//Переводы'].toFixed(2), 0);
-        setCellStyle(currentRowIndex, methodTotalColIndex, 'format', 'rub');
-    }
-    if (methodColIndexes['Наличка']) {
-        const methodTotalColIndex = methodColIndexes['Наличка'].end;
-        setCellText(currentRowIndex, methodTotalColIndex, totalSumsDB2['Процессинг//Наличка'].toFixed(2), 0);
-        setCellStyle(currentRowIndex, methodTotalColIndex, 'format', 'rub');
-    }
-    setCellText(currentRowIndex, colIndex, (totalSumsDB2['Итого']).toFixed(2), 0);
-    setCellStyle(currentRowIndex, colIndex, 'format', 'rub'); 
-
     currentRowIndex++;
     setCellText(currentRowIndex, 0, "₽ Итого: фикс косты на поднаправление", 0);
     setCellStyle(currentRowIndex, 0, 'format', '');
