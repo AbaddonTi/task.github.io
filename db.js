@@ -320,7 +320,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     const projectsToProcess = ['Процессинг//Переводы', 'Процессинг//Наличка'];
     const cashInProject = 'Cash-In//';
 
-    // Настройка столбца для "Cash-In//"
     if (!methodColIndexes['Cash-In//']) {
         methodColIndexes['Cash-In//'] = { start: colIndex + 1, end: colIndex + 1 };
     }
@@ -329,7 +328,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellText(0, cashInColIndex, "Cash-In//", 0);
     let cashInRecountSum = 0;
 
-    // Подсчет суммы пересчета кассы (Cash-In//) и конвертация в RUB
     filteredRecordsDB2.forEach(record => {
         const operation = record['Бухгалтерия_Операция'];
         const project = record['Бухгалтерия_Проект'];
@@ -344,9 +342,8 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     });
 
     setCellText(10, cashInColIndex, cashInRecountSum.toFixed(2), 0);
-    setCellStyle(10, cashInColIndex, 'format', 'rub'); // Форматируем как рубли
-
-    // Обработка и суммирование операций, конвертированных в RUB
+    setCellStyle(10, cashInColIndex, 'format', 'rub'); 
+    
     filteredRecordsDB2.forEach(record => {
         const operation = record['Бухгалтерия_Операция'];
         const project = record['Бухгалтерия_Проект'];
@@ -365,7 +362,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
                         'Процессинг//Наличка': 0
                     };
                 }
-                // Конвертация суммы в RUB
                 const sumRUB = sumUSD * exchangeRate;
                 operationSums[operation][project] += sumRUB;
             }
@@ -382,14 +378,12 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
                         'Cash-In//': 0
                     };
                 }
-                // Конвертация суммы в RUB
                 const sumRUB = sumUSD * exchangeRate;
                 operationSums[operation]['Cash-In//'] += sumRUB;
             }
         }
     });
 
-    // Отображение уникальных операций и их сумм в RUB
     uniqueOperations.forEach(operation => {
         setCellText(currentRowIndex, 0, operation, 0);
 
@@ -400,7 +394,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         const totalProcessingSum = (переводSum + наличкаSum).toFixed(2);
 
         setCellText(currentRowIndex, colIndex, totalProcessingSum, 0);
-        setCellStyle(currentRowIndex, colIndex, 'format', 'rub'); // Форматируем как рубли
+        setCellStyle(currentRowIndex, colIndex, 'format', 'rub'); 
 
         if (methodColIndexes['Переводы']) {
             const methodTotalColIndex = methodColIndexes['Переводы'].end;
@@ -449,13 +443,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellText(25, totalTotalsColIndex, `=${totalProcessingColLetter}26+${cashInColLetter}26`, 0);
     setCellStyle(25, totalTotalsColIndex, 'format', 'rub'); 
 
-    // Удаляем строки, связанные с итогами в USD
-    // Удалены строки:
-    // setCellText(currentRowIndex, 0, "$ Итого: фикс косты на поднаправление", 0);
-    // setCellText(currentRowIndex, 0, "$ Итого: фикс косты на направление", 0);
-    // setCellStyle(currentRowIndex, 0, 'format', '');
-
-    // Вместо этого сразу переходим к отображению итогов в RUB
     setCellText(currentRowIndex, 0, "Итого: фикс косты на поднаправление", 0);
     setCellStyle(currentRowIndex, 0, 'format', ''); 
 
@@ -526,7 +513,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
                 processingOperationsDB3[operation] = 0;
             }
             if (!isNaN(sumUSD)) {
-                // Конвертация суммы в RUB
                 const sumRUB = sumUSD * exchangeRate;
                 processingOperationsDB3[operation] += sumRUB;
             }
@@ -539,7 +525,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
         const operationSum = processingOperationsDB3[operation].toFixed(2);
         setCellText(currentRowIndex, colIndex, operationSum, 0);
-        setCellStyle(currentRowIndex, colIndex, 'format', 'rub'); // Форматируем как рубли
+        setCellStyle(currentRowIndex, colIndex, 'format', 'rub'); 
         processingTotalSumDB3 += parseFloat(operationSum);
         currentRowIndex++;
     });
@@ -550,23 +536,8 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     const totalProcessingSumOnlyDB3 = processingTotalSumDB3;
     setCellText(currentRowIndex, colIndex, totalProcessingSumOnlyDB3.toFixed(2), 0);
-    setCellStyle(currentRowIndex, colIndex, 'format', 'rub'); // Форматируем как рубли
+    setCellStyle(currentRowIndex, colIndex, 'format', 'rub');
 
-    // Удаляем обработку Cash-In// в DB3, так как она уже учтена
-    /*
-    let cashInSumDB3 = 0;
-    if (methodColIndexes['Cash-In//']) {
-        cashInSumDB3 = cashInTotalSumsDB2['Cash-In//'];
-        setCellText(currentRowIndex, cashInColIndex, cashInSumDB3.toFixed(2), 0);
-        setCellStyle(currentRowIndex, cashInColIndex, 'format', 'rub');
-    }
-
-    const totalTotalsSumDB3 = totalProcessingSumOnlyDB3 + cashInSumDB3;
-    setCellText(currentRowIndex, totalTotalsColIndex, totalTotalsSumDB3.toFixed(2), 0);
-    setCellStyle(currentRowIndex, totalTotalsColIndex, 'format', 'rub');
-    */
-
-    // Устанавливаем только сумму DB3 в RUB
     const totalTotalsSumDB3 = totalProcessingSumOnlyDB3;
     setCellText(currentRowIndex, totalTotalsColIndex, totalTotalsSumDB3.toFixed(2), 0);
     setCellStyle(currentRowIndex, totalTotalsColIndex, 'format', 'rub');
@@ -578,18 +549,10 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     if (exchangeRate !== null) {
         const totalInRublesProcessingDB3 = (totalProcessingSumOnlyDB3).toFixed(2);
-        // const totalInRublesCashInDB3 = (cashInTotalSumsDB2['Cash-In//'] * exchangeRate).toFixed(2);
-        const totalInRublesTotalDB3 = totalTotalsSumDB3; // Уже в RUB
+        const totalInRublesTotalDB3 = totalTotalsSumDB3; 
 
         setCellText(currentRowIndex, colIndex, totalInRublesProcessingDB3, 0);
         setCellStyle(currentRowIndex, colIndex, 'format', 'rub');
-
-        /*
-        if (methodColIndexes['Cash-In//']) {
-            setCellText(currentRowIndex, cashInColIndex, totalInRublesCashInDB3, 0);
-            setCellStyle(currentRowIndex, cashInColIndex, 'format', 'rub');
-        }
-        */
 
         setCellText(currentRowIndex, totalTotalsColIndex, totalInRublesTotalDB3.toFixed(2), 0);
         setCellStyle(currentRowIndex, totalTotalsColIndex, 'format', 'rub');
