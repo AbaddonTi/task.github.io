@@ -82,7 +82,6 @@ function renderUniqueBankValues(filteredRecordsDB1, filteredRecordsDB2) {
     s.reRender();
 }
 
-
 function processBankRecords(filteredRecordsDB1) {
     const bankMethodMap = {},
         bankPricesMap = {},
@@ -106,31 +105,39 @@ function processBankRecords(filteredRecordsDB1) {
         const profit = parseFloat(record['Профит']);
         const status = Array.isArray(record['Статус']) ? record['Статус'] : [record['Статус']];
 
+        const isProblem = status.includes('проблема');
+
         if (bank && method) {
             bankMethodMap[method] = bankMethodMap[method] || new Set();
             bankMethodMap[method].add(bank);
 
             bankPricesMap[method] = bankPricesMap[method] || {};
             bankPricesMap[method][bank] = bankPricesMap[method][bank] || [];
-            if (!isNaN(price)) {
-                bankPricesMap[method][bank].push(price);
-                totalPrices += price;
-                totalPricesCount += 1;
-            }
 
             bankCountsMap[method] = bankCountsMap[method] || {};
-            bankCountsMap[method][bank] = (bankCountsMap[method][bank] || 0) + 1;
-            totalBanksCount += 1;
+            bankCountsMap[method][bank] = (bankCountsMap[method][bank] || 0);
 
             bankProfitsMap[method] = bankProfitsMap[method] || {};
             bankProfitsMap[method][bank] = bankProfitsMap[method][bank] || [];
-            if (!isNaN(profit)) {
-                bankProfitsMap[method][bank].push(profit);
-                totalProfits += profit;
-                totalProfitsCount += 1;
+
+            if (!isProblem) {
+                if (!isNaN(price)) {
+                    bankPricesMap[method][bank].push(price);
+                    totalPrices += price;
+                    totalPricesCount += 1;
+                }
+
+                bankCountsMap[method][bank] += 1;
+                totalBanksCount += 1;
+
+                if (!isNaN(profit)) {
+                    bankProfitsMap[method][bank].push(profit);
+                    totalProfits += profit;
+                    totalProfitsCount += 1;
+                }
             }
 
-            if (status.includes('проблема')) {
+            if (isProblem) {
                 bankProblemCountsMap[method] = bankProblemCountsMap[method] || {};
                 bankProblemCountsMap[method][bank] = (bankProblemCountsMap[method][bank] || 0) + 1;
                 totalProblemCount += 1;
