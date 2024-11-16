@@ -390,13 +390,12 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     const uniqueOperations = new Set();
     const operationSums = {};
 
-    let currentRowIndex = 28; 
+    let currentRowIndex = 28; // Начальная строка для DB2
     const totalSumsDB2 = {
         'Процессинг//Переводы': 0,
         'Процессинг//Наличка': 0,
         'Итого': 0
     };
-
     const cashInTotalSumsDB2 = {
         'Cash-In//': 0,
         'Итого': 0
@@ -426,7 +425,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     });
 
     setCellText(10, cashInColIndex, cashInRecountSum.toFixed(2), 0);
-    setCellStyle(10, cashInColIndex, 'format', 'usd');
+    setCellStyle(10, cashInColIndex, 'format', 'usd'); // Формат 'usd'
 
     // === Обработка операций для DB2 ===
     filteredRecordsDB2.forEach(record => {
@@ -450,6 +449,22 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
                 operationSums[operation][project] += sum;
             }
         }
+        else if (
+            operation &&
+            !excludedOperations.has(operation) &&
+            operation !== "Пересчёт кассы" &&
+            project === cashInProject
+        ) {
+            uniqueOperations.add(operation);
+            if (!isNaN(sum)) {
+                if (!operationSums[operation]) {
+                    operationSums[operation] = {
+                        'Cash-In//': 0
+                    };
+                }
+                operationSums[operation]['Cash-In//'] = (operationSums[operation]['Cash-In//'] || 0) + sum;
+            }
+        }
     });
 
     uniqueOperations.forEach(operation => {
@@ -461,6 +476,8 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
         const переводSum = operationSums[operation]['Процессинг//Переводы'] || 0;
         const наличкаSum = operationSums[operation]['Процессинг//Наличка'] || 0;
+        const cashInSum = operationSums[operation]['Cash-In//'] || 0;
+
         const totalProcessingSum = (переводSum + наличкаSum).toFixed(2);
 
         setCellText(currentRowIndex, colIndex, totalProcessingSum, 0);
@@ -480,16 +497,15 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         }
 
         totalSumsDB2['Итого'] += parseFloat(totalProcessingSum);
-        
+
+        if (cashInSum !== 0) {
+            setCellText(currentRowIndex, cashInColIndex, cashInSum.toFixed(2), 0);
+            setCellStyle(currentRowIndex, cashInColIndex, 'format', 'usd'); 
+            cashInTotalSumsDB2['Cash-In//'] += cashInSum;
+            cashInTotalSumsDB2['Итого'] += cashInSum;
+        }
         currentRowIndex++;
     });
-
-    if (cashInSum !== 0) {
-        setCellText(currentRowIndex, cashInColIndex, cashInSum.toFixed(2), 0);
-        setCellStyle(currentRowIndex, cashInColIndex, 'format', 'usd'); 
-        cashInTotalSumsDB2['Cash-In//'] += cashInSum;
-        cashInTotalSumsDB2['Итого'] += cashInSum;
-    }
 
     currentRowIndex++;
 
