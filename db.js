@@ -334,7 +334,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
                         'Процессинг//Наличка': 0
                     };
                 }
-                // Конвертация суммы в RUB
                 const sumRUB = exchangeRate !== null ? sumUSD * exchangeRate : 0;
                 operationSums[operation][project] += sumRUB;
             }
@@ -375,8 +374,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     });
 
     currentRowIndex++;
-
-    // Установка текущего курса USD/RUB (опционально, если нужно отображать)
     setCellText(currentRowIndex, 0, "Текущий курс USD/RUB:", 0);
 
     if (exchangeRate !== null) {
@@ -388,7 +385,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     currentRowIndex++;
 
-    // Формула для DB2 (можно оставить или удалить, в зависимости от необходимости)
     const totalTotalsColIndex = colIndex + 1;
     setCellText(0, totalTotalsColIndex, "Итоги Итогов:", 0);
 
@@ -417,9 +413,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     currentRowIndex++;
     setCellText(currentRowIndex, 0, "₽ Итого: фикс косты на поднаправление", 0);
     setCellStyle(currentRowIndex, 0, 'format', ''); 
-
-    // Поскольку все суммы уже в RUB, дополнительная конвертация не нужна
-    // Поэтому этот блок можно удалить или оставить для дополнительной проверки
 
     currentRowIndex++;
     setCellText(currentRowIndex, 0, "₽ DB 2", 0);
@@ -450,7 +443,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
                 processingOperationsDB3[operation] = 0;
             }
             if (!isNaN(sumUSD)) {
-                // Конвертация суммы в RUB
                 const sumRUB = exchangeRate !== null ? sumUSD * exchangeRate : 0;
                 processingOperationsDB3[operation] += sumRUB;
             }
@@ -484,12 +476,8 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellStyle(currentRowIndex, colIndex + 1, 'format', 'rub');
 
     currentRowIndex++;
-
     setCellText(currentRowIndex, 0, "₽ Итого: фикс косты на направление", 0);
     setCellStyle(currentRowIndex, 0, 'format', '');
-
-    // Поскольку все суммы уже в RUB, дополнительная конвертация не нужна
-    // Поэтому этот блок можно удалить или оставить для дополнительной проверки
 
     currentRowIndex++;
     setCellText(currentRowIndex, 0, "₽ DB 3", 0);
