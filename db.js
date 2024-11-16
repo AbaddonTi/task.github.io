@@ -287,22 +287,6 @@ function renderBankData(bankData) {
     return { colIndex, methodColIndexes };
 }
 
-// Новая функция для обработки колонки "Cash-In//"
-function renderCashInColumn(currentRowIndex, cashInColIndex) {
-    // Устанавливаем заголовок новой колонки
-    setCellText(0, cashInColIndex, "Cash-In//", 0);
-    setCellStyle(0, cashInColIndex, 'format', '');
-
-    // Пример заполнения данных для "Cash-In//"
-    // Здесь можно добавить логику для заполнения этой колонки в будущем
-    // Например:
-    // setCellText(currentRowIndex, cashInColIndex, someValue, 0);
-    // setCellStyle(currentRowIndex, cashInColIndex, 'format', 'rub');
-
-    // Возвращаем индекс следующей колонки, если потребуется
-    return cashInColIndex;
-}
-
 function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }, exchangeRate) {
     const excludedOperations = new Set([
         "Пересчёт кассы",
@@ -326,10 +310,11 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     const totalSumsDB2 = {
         'Процессинг//Переводы': 0,
         'Процессинг//Наличка': 0,
+        'Cash-In//': 0, // Добавлена новая категория
         'Итого': 0
     };
 
-    const projectsToProcess = ['Процессинг//Переводы', 'Процессинг//Наличка'];
+    const projectsToProcess = ['Процессинг//Переводы', 'Процессинг//Наличка', 'Cash-In//']; // Включаем новую категорию
 
     // === Обработка операций для DB2 ===
     filteredRecordsDB2.forEach(record => {
@@ -347,7 +332,8 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
                 if (!operationSums[operation]) {
                     operationSums[operation] = {
                         'Процессинг//Переводы': 0,
-                        'Процессинг//Наличка': 0
+                        'Процессинг//Наличка': 0,
+                        'Cash-In//': 0 // Инициализация для новой категории
                     };
                 }
                 const sumRUB = exchangeRate !== null ? sumUSD * exchangeRate : 0;
@@ -365,8 +351,9 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
         const переводSumRUB = operationSums[operation]['Процессинг//Переводы'] || 0;
         const наличкаSumRUB = operationSums[operation]['Процессинг//Наличка'] || 0;
+        const cashInSumRUB = operationSums[operation]['Cash-In//'] || 0; // Получение суммы для новой категории
 
-        const totalProcessingSumRUB = (переводSumRUB + наличкаSumRUB).toFixed(2);
+        const totalProcessingSumRUB = (переводSumRUB + наличкаSumRUB + cashInSumRUB).toFixed(2); // Включаем новую категорию
 
         setCellText(currentRowIndex, colIndex, totalProcessingSumRUB, 0);
         setCellStyle(currentRowIndex, colIndex, 'format', 'rub');
@@ -383,18 +370,31 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
             setCellStyle(currentRowIndex, methodTotalColIndex, 'format', 'rub'); 
             totalSumsDB2['Процессинг//Наличка'] += наличкаSumRUB;
         }
+        if (methodColIndexes['Cash-In']) { // Обработка новой категории
+            const methodTotalColIndex = methodColIndexes['Cash-In'].end;
+            setCellText(currentRowIndex, methodTotalColIndex, cashInSumRUB.toFixed(2), 0);
+            setCellStyle(currentRowIndex, methodTotalColIndex, 'format', 'rub'); 
+            totalSumsDB2['Cash-In//'] += cashInSumRUB;
+        }
 
         totalSumsDB2['Итого'] += parseFloat(totalProcessingSumRUB);
 
         currentRowIndex++;
     });
 
-    // Добавляем новую колонку "Cash-In//" после "итого Процессинг"
-    const cashInColIndex = colIndex + 1;
-    renderCashInColumn(currentRowIndex, cashInColIndex);
+    currentRowIndex++;
+    setCellText(currentRowIndex, 0, "Текущий курс USD/RUB:", 0);
 
-    // Смещаем "Итоги Итогов:" на следующую колонку
-    const totalTotalsColIndex = colIndex + 2;
+    if (exchangeRate !== null) {
+        setCellText(currentRowIndex, 1, exchangeRate.toFixed(2), 0);
+        setCellStyle(currentRowIndex, 1, 'format', 'rub');
+    }
+
+    const exchangeRateRowIndexDB2 = currentRowIndex + 2;
+
+    currentRowIndex++;
+
+    const totalTotalsColIndex = colIndex + 2; // Увеличиваем индекс, так как добавлена новая колонка
     setCellText(0, totalTotalsColIndex, "Итоги Итогов:", 0);
 
     const totalProcessingColLetter = String.fromCharCode(65 + colIndex);
@@ -416,8 +416,13 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         setCellText(currentRowIndex, methodTotalColIndex, totalSumsDB2['Процессинг//Наличка'].toFixed(2), 0);
         setCellStyle(currentRowIndex, methodTotalColIndex, 'format', 'rub');
     }
-    setCellText(currentRowIndex, colIndex, (totalSumsDB2['Итого']).toFixed(2), 0);
-    setCellStyle(currentRowIndex, colIndex, 'format', 'rub'); 
+    if (methodColIndexes['Cash-In']) { // Итоговая сумма для новой категории
+        const methodTotalColIndex = methodColIndexes['Cash-In'].end;
+        setCellText(currentRowIndex, methodTotalColIndex, totalSumsDB2['Cash-In//'].toFixed(2), 0);
+        setCellStyle(currentRowIndex, methodTotalColIndex, 'format', 'rub');
+    }
+    setCellText(currentRowIndex, colIndex + 1, (totalSumsDB2['Итого']).toFixed(2), 0); // Сдвиг на одну колонку вправо
+    setCellStyle(currentRowIndex, colIndex + 1, 'format', 'rub'); 
 
     currentRowIndex++;
     setCellText(currentRowIndex, 0, "₽ DB 2", 0);
@@ -425,8 +430,8 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     const totalColLetterDB2 = String.fromCharCode(65 + colIndex);
     const db2Formula = `=${totalColLetterDB2}26 - ${totalColLetterDB2}${exchangeRateRowIndexDB2}`;
-    setCellText(currentRowIndex, colIndex, db2Formula, 0);
-    setCellStyle(currentRowIndex, colIndex, 'format', 'rub');
+    setCellText(currentRowIndex, colIndex + 1, db2Formula, 0); // Сдвиг на одну колонку вправо
+    setCellStyle(currentRowIndex, colIndex + 1, 'format', 'rub');
 
     // === Переход к DB3 ===
     currentRowIndex += 2; 
@@ -477,7 +482,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellStyle(currentRowIndex, colIndex, 'format', 'rub');
 
     const totalTotalsSumDB3 = totalProcessingSumOnlyDB3;
-    setCellText(currentRowIndex, colIndex + 1, totalTotalsSumDB3.toFixed(2), 0);
+    setCellText(currentRowIndex, colIndex + 1, totalTotalsSumDB3.toFixed(2), 0); // Сдвиг на одну колонку вправо
     setCellStyle(currentRowIndex, colIndex + 1, 'format', 'rub');
 
     currentRowIndex++;
@@ -485,8 +490,8 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellStyle(currentRowIndex, 0, 'format', '');
 
     const db3Formula = `=${totalColLetterDB2}${exchangeRateRowIndexDB2 + 1} - ${totalColLetterDB2}${currentRowIndex}`;
-    setCellText(currentRowIndex, colIndex, db3Formula, 0);
-    setCellStyle(currentRowIndex, colIndex, 'format', 'rub');
+    setCellText(currentRowIndex, colIndex + 1, db3Formula, 0); // Сдвиг на одну колонку вправо
+    setCellStyle(currentRowIndex, colIndex + 1, 'format', 'rub');
 
     // === Добавление Правых Границ для Методов ===
     const borderStartRow = 0;
@@ -505,6 +510,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     const additionalBordersColIndexes = [
         0, 
         colIndex, 
+        colIndex + 1, // Добавлена новая колонка
         totalTotalsColIndex 
     ];
 
@@ -514,6 +520,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
             if (
                 targetColIndex === 0 || 
                 targetColIndex === colIndex || 
+                targetColIndex === colIndex + 1 || // Добавлена новая колонка
                 targetColIndex === totalTotalsColIndex 
             ) {
                 borderStyle = getBorderStyle('thick'); 
