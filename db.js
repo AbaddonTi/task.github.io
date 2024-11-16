@@ -430,14 +430,14 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     currentRowIndex++;
 
     const cashInColLetter = String.fromCharCode(65 + cashInColIndex);
-    setCellText(25, cashInColIndex, =${cashInColLetter}11*B${exchangeRateRowIndexDB2}, 0);
+    setCellText(25, cashInColIndex, `=${cashInColLetter}11*B${exchangeRateRowIndexDB2}`, 0);
     setCellStyle(25, cashInColIndex, 'format', 'rub');
 
     const totalTotalsColIndex = cashInColIndex + 1;
     setCellText(0, totalTotalsColIndex, "Итоги Итогов:", 0);
 
     const totalProcessingColLetter = String.fromCharCode(65 + colIndex);
-    setCellText(25, totalTotalsColIndex, =${totalProcessingColLetter}26+${cashInColLetter}26, 0);
+    setCellText(25, totalTotalsColIndex, `=${totalProcessingColLetter}26+${cashInColLetter}26`, 0);
     setCellStyle(25, totalTotalsColIndex, 'format', 'rub'); 
 
     setCellText(currentRowIndex, 0, "$ Итого: фикс косты на поднаправление", 0);
@@ -487,7 +487,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellStyle(currentRowIndex, 0, 'format', '');
 
     const totalColLetterDB2 = String.fromCharCode(65 + colIndex);
-    const db2Formula = =${totalColLetterDB2}26 - ${totalColLetterDB2}${rubleSubTotalRowIndexDB2};
+    const db2Formula = `=${totalColLetterDB2}26 - ${totalColLetterDB2}${rubleSubTotalRowIndexDB2}`;
     setCellText(currentRowIndex, colIndex, db2Formula, 0);
     setCellStyle(currentRowIndex, colIndex, 'format', 'rub');
 
@@ -576,17 +576,17 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellStyle(currentRowIndex, 0, 'format', '');
 
     if (exchangeRate !== null) {
-        const formulaCashInDB3 = =${cashInColLetter}26 - ${cashInColLetter}${rubleTotalRowIndexDB3};
+        const formulaCashInDB3 = `=${cashInColLetter}26 - ${cashInColLetter}${rubleTotalRowIndexDB3}`;
         setCellText(currentRowIndex, cashInColIndex, formulaCashInDB3, 0);
         setCellStyle(currentRowIndex, cashInColIndex, 'format', 'rub');
     }
 
-    const db3Formula = =${totalColLetterDB2}${rubleSubTotalRowIndexDB2 + 1} - ${totalColLetterDB2}${rubleTotalRowIndexDB3};
+    const db3Formula = `=${totalColLetterDB2}${rubleSubTotalRowIndexDB2 + 1} - ${totalColLetterDB2}${rubleTotalRowIndexDB3}`;
     setCellText(currentRowIndex, colIndex, db3Formula, 0);
     setCellStyle(currentRowIndex, colIndex, 'format', 'rub');
 
     const cashInDB3ColLetter = cashInColLetter;
-    setCellText(currentRowIndex, totalTotalsColIndex, =${totalColLetterDB2}${currentRowIndex + 1}+${cashInDB3ColLetter}${currentRowIndex + 1}, 0);
+    setCellText(currentRowIndex, totalTotalsColIndex, `=${totalColLetterDB2}${currentRowIndex + 1}+${cashInDB3ColLetter}${currentRowIndex + 1}`, 0);
     setCellStyle(currentRowIndex, totalTotalsColIndex, 'format', 'rub');
 
     const borderStartRow = 0;
@@ -646,5 +646,3 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         }, 0);
     }
 }
-
-
