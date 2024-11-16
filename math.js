@@ -396,36 +396,8 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         'Процессинг//Наличка': 0,
         'Итого': 0
     };
-    const cashInTotalSumsDB2 = {
-        'Cash-In//': 0,
-        'Итого': 0
-    };
 
     const projectsToProcess = ['Процессинг//Переводы', 'Процессинг//Наличка'];
-    const cashInProject = 'Cash-In//';
-
-    if (!methodColIndexes['Cash-In//']) {
-        methodColIndexes['Cash-In//'] = { start: colIndex + 1, end: colIndex + 1 };
-    }
-
-    const cashInColIndex = methodColIndexes['Cash-In//'].end;
-    setCellText(0, cashInColIndex, "Cash-In//", 0);
-    let cashInRecountSum = 0;
-
-    filteredRecordsDB2.forEach(record => {
-        const operation = record['Бухгалтерия_Операция'];
-        const project = record['Бухгалтерия_Проект'];
-        const sum = parseFloat(record['Бухгалтерия_Сумма']);
-
-        if (operation === "Пересчёт кассы" && project === cashInProject) {
-            if (!isNaN(sum)) {
-                cashInRecountSum += sum;
-            }
-        }
-    });
-
-    setCellText(10, cashInColIndex, cashInRecountSum.toFixed(2), 0);
-    setCellStyle(10, cashInColIndex, 'format', 'usd'); // Формат 'usd'
 
     // === Обработка операций для DB2 ===
     filteredRecordsDB2.forEach(record => {
@@ -447,22 +419,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
                     };
                 }
                 operationSums[operation][project] += sum;
-            }
-        }
-        else if (
-            operation &&
-            !excludedOperations.has(operation) &&
-            operation !== "Пересчёт кассы" &&
-            project === cashInProject
-        ) {
-            uniqueOperations.add(operation);
-            if (!isNaN(sum)) {
-                if (!operationSums[operation]) {
-                    operationSums[operation] = {
-                        'Cash-In//': 0
-                    };
-                }
-                operationSums[operation]['Cash-In//'] = (operationSums[operation]['Cash-In//'] || 0) + sum;
             }
         }
     });
@@ -497,14 +453,8 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         }
 
         totalSumsDB2['Итого'] += parseFloat(totalProcessingSum);
-
-        if (cashInSum !== 0) {
-            setCellText(currentRowIndex, cashInColIndex, cashInSum.toFixed(2), 0);
-            setCellStyle(currentRowIndex, cashInColIndex, 'format', 'usd'); 
-            cashInTotalSumsDB2['Cash-In//'] += cashInSum;
-            cashInTotalSumsDB2['Итого'] += cashInSum;
-        }
         currentRowIndex++;
+        
     });
 
     currentRowIndex++;
@@ -516,7 +466,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         setCellText(currentRowIndex, 1, exchangeRate.toFixed(2), 0);
         setCellStyle(currentRowIndex, 1, 'format', 'rub');
     }
-
     const exchangeRateRowIndexDB2 = currentRowIndex + 1;
 
     currentRowIndex++;
