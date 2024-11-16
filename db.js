@@ -367,7 +367,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         else if (
             operation &&
             !excludedOperations.has(operation) &&
-            operation !== "Пересчёт кассы" &&
             project === cashInProject
         ) {
             uniqueOperations.add(operation);
@@ -383,10 +382,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     });
 
     uniqueOperations.forEach(operation => {
-        if (operation === "Пересчёт кассы") {
-            return;
-        }
-
         setCellText(currentRowIndex, 0, operation, 0);
 
         const переводSum = operationSums[operation]['Процессинг//Переводы'] || 0;
