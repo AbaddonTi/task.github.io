@@ -630,7 +630,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     const cashInDB3ColLetter = cashInColLetter;
     setCellText(currentRowIndex, totalTotalsColIndex, `=${totalColLetterDB2}${currentRowIndex + 1}+${cashInDB3ColLetter}${currentRowIndex + 1}`, 0);
     setCellStyle(currentRowIndex, totalTotalsColIndex, 'format', 'rub');
-}
 
     // === Добавление Правых Границ для Методов ===
     const borderStartRow = 0;
