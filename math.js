@@ -397,6 +397,11 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         'Итого': 0
     };
 
+    const cashInTotalSumsDB2 = {
+        'Cash-In//': 0,
+        'Итого': 0
+    };
+
     const projectsToProcess = ['Процессинг//Переводы', 'Процессинг//Наличка'];
     const cashInProject = 'Cash-In//';
 
@@ -478,6 +483,13 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         
         currentRowIndex++;
     });
+
+    if (cashInSum !== 0) {
+        setCellText(currentRowIndex, cashInColIndex, cashInSum.toFixed(2), 0);
+        setCellStyle(currentRowIndex, cashInColIndex, 'format', 'usd'); 
+        cashInTotalSumsDB2['Cash-In//'] += cashInSum;
+        cashInTotalSumsDB2['Итого'] += cashInSum;
+    }
 
     currentRowIndex++;
 
