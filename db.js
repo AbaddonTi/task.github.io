@@ -381,7 +381,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         setCellStyle(currentRowIndex, 1, 'format', 'rub');
     }
 
-    const exchangeRateRowIndexDB2 = currentRowIndex + 1;
+    const exchangeRateRowIndexDB2 = currentRowIndex + 2;
 
     currentRowIndex++;
 
@@ -415,7 +415,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellStyle(currentRowIndex, 0, 'format', '');
 
     const totalColLetterDB2 = String.fromCharCode(65 + colIndex);
-    const db2Formula = `=${totalColLetterDB2}26 - ${totalColLetterDB2}${exchangeRateRowIndexDB2 + 1}`;
+    const db2Formula = `=${totalColLetterDB2}26 - ${totalColLetterDB2}${exchangeRateRowIndexDB2}`;
     setCellText(currentRowIndex, colIndex, db2Formula, 0);
     setCellStyle(currentRowIndex, colIndex, 'format', 'rub');
 
