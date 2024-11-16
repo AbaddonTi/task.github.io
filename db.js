@@ -411,10 +411,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellStyle(currentRowIndex, colIndex, 'format', 'rub'); 
 
     currentRowIndex++;
-    setCellText(currentRowIndex, 0, "₽ Итого: фикс косты на поднаправление", 0);
-    setCellStyle(currentRowIndex, 0, 'format', ''); 
-
-    currentRowIndex++;
     setCellText(currentRowIndex, 0, "₽ DB 2", 0);
     setCellStyle(currentRowIndex, 0, 'format', '');
 
@@ -474,10 +470,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     const totalTotalsSumDB3 = totalProcessingSumOnlyDB3;
     setCellText(currentRowIndex, colIndex + 1, totalTotalsSumDB3.toFixed(2), 0);
     setCellStyle(currentRowIndex, colIndex + 1, 'format', 'rub');
-
-    currentRowIndex++;
-    setCellText(currentRowIndex, 0, "₽ Итого: фикс косты на направление", 0);
-    setCellStyle(currentRowIndex, 0, 'format', '');
 
     currentRowIndex++;
     setCellText(currentRowIndex, 0, "₽ DB 3", 0);
