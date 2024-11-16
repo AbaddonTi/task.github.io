@@ -340,8 +340,10 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         }
     });
 
-    setCellText(10, cashInColIndex, cashInRecountSum.toFixed(2), 0);
-    setCellStyle(10, cashInColIndex, 'format', 'usd'); // Формат 'usd'
+    // Конвертация суммы пересчёта кассы в RUB
+    const cashInRecountSumRub = exchangeRate ? (cashInRecountSum * exchangeRate).toFixed(2) : cashInRecountSum.toFixed(2);
+    setCellText(10, cashInColIndex, cashInRecountSumRub, 0);
+    setCellStyle(10, cashInColIndex, 'format', 'rub'); // Формат 'rub'
 
     // === Обработка операций для DB2 ===
     filteredRecordsDB2.forEach(record => {
@@ -474,6 +476,11 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     setCellStyle(currentRowIndex, colIndex, 'format', 'rub'); 
 
     currentRowIndex++;
+
+    // Удаление строки "$ Итого: фикс косты на направление"
+    // setCellText(currentRowIndex, 0, "$ Итого: фикс косты на направление", 0);
+    // setCellStyle(currentRowIndex, 0, 'format', ''); 
+
     setCellText(currentRowIndex, 0, "₽ Итого: фикс косты на поднаправление", 0);
     setCellStyle(currentRowIndex, 0, 'format', '');
 
@@ -577,7 +584,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     if (exchangeRate !== null) {
         const totalInRublesProcessingDB3 = (totalProcessingSumOnlyDB3).toFixed(2); // Уже в RUB
         const totalInRublesCashInDB3 = (cashInTotalSumsDB2['Cash-In//']).toFixed(2); // Уже в RUB
-        const totalInRublesTotalDB3 = totalTotalsSumDB3.toFixed(2); // Уже в RUB
+        const totalInRublesTotalDB3 = (totalTotalsSumDB3).toFixed(2); // Уже в RUB
 
         setCellText(currentRowIndex, colIndex, totalInRublesProcessingDB3, 0);
         setCellStyle(currentRowIndex, colIndex, 'format', 'rub');
@@ -676,4 +683,3 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         }, 0);
     }
 }
-
