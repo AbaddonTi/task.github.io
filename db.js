@@ -4,6 +4,7 @@ function processBankRecords(filteredRecordsDB1) {
         bankCountsMap = {},
         bankProfitsMap = {},
         bankProblemCountsMap = {},
+        bankBlockSumMap = {},
         bankBlockCountsMap = {};
 
     let totalPrices = 0,
@@ -12,6 +13,7 @@ function processBankRecords(filteredRecordsDB1) {
         totalProfits = 0,
         totalProfitsCount = 0,
         totalProblemCount = 0,
+        totalBlockAmount = 0,
         totalBlockCount = 0;
 
     filteredRecordsDB1.forEach(record => {
@@ -20,6 +22,13 @@ function processBankRecords(filteredRecordsDB1) {
         const price = parseFloat(record['Цена']);
         const profit = parseFloat(record['Профит']);
         const status = Array.isArray(record['Статус']) ? record['Статус'] : [record['Статус']];
+        const blockAmount = parseFloat(record['BLOCK']);
+
+        if (!isNaN(blockAmount)) {
+            bankBlockSumMap[method] = bankBlockSumMap[method] || {};
+            bankBlockSumMap[method][bank] = (bankBlockSumMap[method][bank] || 0) + blockAmount;
+            totalBlockAmount += blockAmount;
+        }
 
         const isProblem = status.includes('проблема');
 
@@ -80,7 +89,9 @@ function processBankRecords(filteredRecordsDB1) {
         totalProfits,
         totalProfitsCount,
         totalProblemCount,
-        totalBlockCount
+        totalBlockCount,
+        bankBlockSumMap,
+        totalBlockAmount
     };
 }
 
@@ -98,6 +109,8 @@ function renderBankData(bankData) {
         totalProfits,
         totalProfitsCount,
         totalProblemCount,
+        bankBlockSumMap,
+        totalBlockAmount,
         totalBlockCount
     } = bankData;
 
@@ -159,8 +172,9 @@ function renderBankData(bankData) {
             setCellText(16, bankColIndex, `=${colLetter}19/${colLetter}8*100`, 0);
             setCellStyle(16, bankColIndex, 'format', 'percent'); 
 
-            setCellText(17, bankColIndex, `=${colLetter}7*${colLetter}19`, 0);
-            setCellStyle(17, bankColIndex, 'format', 'rub'); 
+            const blockSum = bankBlockSumMap[method]?.[bank]?.toFixed(2) || '0.00';
+            setCellText(17, bankColIndex, blockSum, 0);
+            setCellStyle(17, bankColIndex, 'format', 'rub');
 
             setCellText(18, bankColIndex, bankBlockCountsMap[method]?.[bank] || 0, 0);
 
@@ -209,8 +223,9 @@ function renderBankData(bankData) {
         setCellText(16, totalColIndex, `=${totalColLetter}19/${totalColLetter}8*100`, 0);
         setCellStyle(16, totalColIndex, 'format', 'percent'); 
 
-        setCellText(17, totalColIndex, `=SUM(${bankColLetters.map(l => l + '18').join(',')})`, 0);
-        setCellStyle(17, totalColIndex, 'format', 'rub'); 
+        const methodBlockSum = Object.values(bankBlockSumMap[method] || {}).reduce((a, b) => a + b, 0).toFixed(2);
+        setCellText(17, totalColIndex, methodBlockSum, 0);
+        setCellStyle(17, totalColIndex, 'format', 'rub');
 
         setCellText(18, totalColIndex, `=SUM(${bankColLetters.map(l => l + '19').join(',')})`, 0);
 
@@ -260,8 +275,8 @@ function renderBankData(bankData) {
     setCellText(16, colIndex, `=${totalColLetter}19/${totalColLetter}8*100`, 0);
     setCellStyle(16, colIndex, 'format', 'percent');
 
-    setCellText(17, colIndex, `=${totalColLetter}7*${totalColLetter}19`, 0);
-    setCellStyle(17, colIndex, 'format', 'rub'); 
+    setCellText(17, colIndex, totalBlockAmount.toFixed(2), 0);
+    setCellStyle(17, colIndex, 'format', 'rub');
 
     setCellText(18, colIndex, totalBlockCount, 0);
 
