@@ -297,6 +297,10 @@ function renderBankData(bankData) {
     setCellText(25, colIndex, `=${totalColLetter}11-${totalColLetter}25`, 0);
     setCellStyle(25, colIndex, 'format', 'rub'); 
 
+    console.log('bankBlockSumMap:', bankBlockSumMap);
+    console.log('totalBlockAmount:', totalBlockAmount);
+
+
     for (let i = 1; i <= colIndex; i++) {
         setCellBackgroundColor(0, i, '#d9ead3', 0);
     }
