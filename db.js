@@ -116,13 +116,13 @@ function renderBankData(bankData) {
         totalBlockAmount
     } = bankData;
 
-    let colIndex = 1; // Начинаем со второго столбца (индекс 1), так как индекс 0 - первый столбец (A)
+    let colIndex = 1; // Начинаем со второго столбца (индекс 1), т.к. индекс 0 - первый столбец (A)
     const methodColIndexes = {};
 
     Object.keys(bankMethodMap).forEach(method => {
         const banks = Array.from(bankMethodMap[method]);
         const methodStartColIndex = colIndex;
-        const methodEndColIndex = colIndex + banks.length;
+        const methodEndColIndex = colIndex + banks.length - 1; // -1, так как индексы начинаются с 0
 
         methodColIndexes[method] = { start: methodStartColIndex, end: methodEndColIndex };
 
@@ -167,7 +167,7 @@ function renderBankData(bankData) {
             setCellStyle(10, bankColIndex, 'format', 'rub');
 
             // Строка 13: '% проблемных'
-            setCellText(12, bankColIndex, `=${colLetter}${15}/${colLetter}${8}*100`, 0); // Строка 13 (индекс 12)
+            setCellText(12, bankColIndex, `=${colLetter}${15}/${colLetter}${8}`, 0); // Строка 13 (индекс 12)
             setCellStyle(12, bankColIndex, 'format', 'percent');
 
             // Строка 14: 'Сумма замороженных денег в проблемных картах'
@@ -178,11 +178,11 @@ function renderBankData(bankData) {
             setCellText(14, bankColIndex, bankProblemCountsMap[method]?.[bank] || 0, 0); // Строка 15 (индекс 14)
 
             // Строка 17: '% блока'
-            setCellText(16, bankColIndex, `=${colLetter}${19}/${colLetter}${8}*100`, 0); // Строка 17 (индекс 16)
+            setCellText(16, bankColIndex, `=${colLetter}${19}/${colLetter}${8}`, 0); // Строка 17 (индекс 16)
             setCellStyle(16, bankColIndex, 'format', 'percent');
 
             // Строка 18: '% блока от выручки' (новая строка)
-            setCellText(17, bankColIndex, `=${colLetter}${19}/${colLetter}${11}*100`, 0); // Строка 18 (индекс 17)
+            setCellText(17, bankColIndex, `=${colLetter}${19}/${colLetter}${11}`, 0); // Строка 18 (индекс 17)
             setCellStyle(17, bankColIndex, 'format', 'percent');
 
             // Строка 19: 'Сумма в блоки (заморозка)'
@@ -202,7 +202,7 @@ function renderBankData(bankData) {
             setCellStyle(22, bankColIndex, 'format', 'percent');
 
             // Строка 24: 'ФОТ операторы'
-            setCellText(23, bankColIndex, `=(${colLetter}${11}-${colLetter}${22})*${colLetter}${23}`, 0); // Строка 24 (индекс 23)
+            setCellText(23, bankColIndex, `=(${colLetter}${11}-${colLetter}${21})*${colLetter}${23}`, 0); // Строка 24 (индекс 23)
             setCellStyle(23, bankColIndex, 'format', 'rub');
 
             // Строка 26: 'Итого: переменные косты на подподнаправления'
@@ -221,60 +221,60 @@ function renderBankData(bankData) {
         const bankColLetters = banks.map((_, index) => String.fromCharCode(65 + (colIndex + index)));
 
         // Строка 7: 'Цена закуп. карты' (среднее)
-        setCellText(6, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '7').join(',')})`, 0);
+        setCellText(6, totalColIndex, `=AVERAGE(${bankColLetters.map(l => `${l}7`).join(',')})`, 0);
         setCellStyle(6, totalColIndex, 'format', 'rub');
 
         // Строка 8: 'Кол-во карт' (сумма)
-        setCellText(7, totalColIndex, `=SUM(${bankColLetters.map(l => l + '8').join(',')})`, 0);
+        setCellText(7, totalColIndex, `=SUM(${bankColLetters.map(l => `${l}8`).join(',')})`, 0);
 
         // Строка 9: 'Профит с 1 карты' (среднее)
-        setCellText(8, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '9').join(',')})`, 0);
+        setCellText(8, totalColIndex, `=AVERAGE(${bankColLetters.map(l => `${l}9`).join(',')})`, 0);
         setCellStyle(8, totalColIndex, 'format', 'rub');
 
         // Строка 11: 'Выручка наша:' (сумма)
-        setCellText(10, totalColIndex, `=SUM(${bankColLetters.map(l => l + '11').join(',')})`, 0);
+        setCellText(10, totalColIndex, `=SUM(${bankColLetters.map(l => `${l}11`).join(',')})`, 0);
         setCellStyle(10, totalColIndex, 'format', 'rub');
 
         // Строка 13: '% проблемных'
-        setCellText(12, totalColIndex, `=${totalColLetter}15/${totalColLetter}8*100`, 0);
+        setCellText(12, totalColIndex, `=${totalColLetter}15/${totalColLetter}8`, 0);
         setCellStyle(12, totalColIndex, 'format', 'percent');
 
         // Строка 14: 'Сумма замороженных денег в проблемных картах'
-        setCellText(13, totalColIndex, `=SUM(${bankColLetters.map(l => l + '14').join(',')})`, 0);
+        setCellText(13, totalColIndex, `=SUM(${bankColLetters.map(l => `${l}14`).join(',')})`, 0);
         setCellStyle(13, totalColIndex, 'format', 'rub');
 
         // Строка 15: 'Кол-во карт проблемных' (сумма)
-        setCellText(14, totalColIndex, `=SUM(${bankColLetters.map(l => l + '15').join(',')})`, 0);
+        setCellText(14, totalColIndex, `=SUM(${bankColLetters.map(l => `${l}15`).join(',')})`, 0);
 
         // Строка 17: '% блока'
-        setCellText(16, totalColIndex, `=${totalColLetter}19/${totalColLetter}8*100`, 0);
+        setCellText(16, totalColIndex, `=${totalColLetter}19/${totalColLetter}8`, 0);
         setCellStyle(16, totalColIndex, 'format', 'percent');
 
         // Строка 18: '% блока от выручки'
-        setCellText(17, totalColIndex, `=${totalColLetter}19/${totalColLetter}11*100`, 0);
+        setCellText(17, totalColIndex, `=${totalColLetter}19/${totalColLetter}11`, 0);
         setCellStyle(17, totalColIndex, 'format', 'percent');
 
         // Строка 19: 'Сумма в блоки (заморозка)' (сумма)
-        setCellText(18, totalColIndex, `=SUM(${bankColLetters.map(l => l + '19').join(',')})`, 0);
+        setCellText(18, totalColIndex, `=SUM(${bankColLetters.map(l => `${l}19`).join(',')})`, 0);
         setCellStyle(18, totalColIndex, 'format', 'rub');
 
         // Строка 20: 'Кол-во карт в блок' (сумма)
-        setCellText(19, totalColIndex, `=SUM(${bankColLetters.map(l => l + '20').join(',')})`, 0);
+        setCellText(19, totalColIndex, `=SUM(${bankColLetters.map(l => `${l}20`).join(',')})`, 0);
 
         // Строка 22: 'закуп карточки' (сумма)
-        setCellText(21, totalColIndex, `=SUM(${bankColLetters.map(l => l + '22').join(',')})`, 0);
+        setCellText(21, totalColIndex, `=SUM(${bankColLetters.map(l => `${l}22`).join(',')})`, 0);
         setCellStyle(21, totalColIndex, 'format', 'rub');
 
         // Строка 23: '% парней с выручки на руки' (среднее)
-        setCellText(22, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '23').join(',')})`, 0);
+        setCellText(22, totalColIndex, `=AVERAGE(${bankColLetters.map(l => `${l}23`).join(',')})`, 0);
         setCellStyle(22, totalColIndex, 'format', 'percent');
 
         // Строка 24: 'ФОТ операторы' (сумма)
-        setCellText(23, totalColIndex, `=SUM(${bankColLetters.map(l => l + '24').join(',')})`, 0);
+        setCellText(23, totalColIndex, `=SUM(${bankColLetters.map(l => `${l}24`).join(',')})`, 0);
         setCellStyle(23, totalColIndex, 'format', 'rub');
 
         // Строка 26: 'Итого: переменные косты на подподнаправления' (сумма)
-        setCellText(25, totalColIndex, `=SUM(${bankColLetters.map(l => l + '26').join(',')})`, 0);
+        setCellText(25, totalColIndex, `=SUM(${bankColLetters.map(l => `${l}26`).join(',')})`, 0);
         setCellStyle(25, totalColIndex, 'format', 'rub');
 
         // Строка 27: 'DB 1'
@@ -310,7 +310,7 @@ function renderBankData(bankData) {
     setCellStyle(10, colIndex, 'format', 'rub');
 
     // Строка 13: '% проблемных'
-    setCellText(12, colIndex, `=${totalColLetter}15/${totalColLetter}8*100`, 0);
+    setCellText(12, colIndex, `=${totalColLetter}15/${totalColLetter}8`, 0);
     setCellStyle(12, colIndex, 'format', 'percent');
 
     // Строка 14: 'Сумма замороженных денег в проблемных картах'
@@ -321,11 +321,11 @@ function renderBankData(bankData) {
     setCellText(14, colIndex, totalProblemCount, 0);
 
     // Строка 17: '% блока'
-    setCellText(16, colIndex, `=${totalColLetter}19/${totalColLetter}8*100`, 0);
+    setCellText(16, colIndex, `=${totalColLetter}19/${totalColLetter}8`, 0);
     setCellStyle(16, colIndex, 'format', 'percent');
 
     // Строка 18: '% блока от выручки'
-    setCellText(17, colIndex, `=${totalColLetter}19/${totalColLetter}11*100`, 0);
+    setCellText(17, colIndex, `=${totalColLetter}19/${totalColLetter}11`, 0);
     setCellStyle(17, colIndex, 'format', 'percent');
 
     // Строка 19: 'Сумма в блоки (заморозка)'
@@ -344,7 +344,7 @@ function renderBankData(bankData) {
     setCellStyle(22, colIndex, 'format', 'percent');
 
     // Строка 24: 'ФОТ операторы'
-    setCellText(23, colIndex, `=(${totalColLetter}11-${totalColLetter}22)*${totalColLetter}23`, 0);
+    setCellText(23, colIndex, `=(${totalColLetter}11-${totalColLetter}21)*${totalColLetter}23`, 0);
     setCellStyle(23, colIndex, 'format', 'rub');
 
     // Строка 26: 'Итого: переменные косты на подподнаправления'
@@ -359,7 +359,11 @@ function renderBankData(bankData) {
     for (let i = 1; i <= colIndex; i++) {
         setCellBackgroundColor(0, i, '#d9ead3', 0);
     }
+
+    // Добавляем отсутствующий оператор return
+    return { colIndex, methodColIndexes };
 }
+
 
 
 
