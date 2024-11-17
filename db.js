@@ -4,8 +4,8 @@ function processBankRecords(filteredRecordsDB1) {
         bankCountsMap = {},
         bankProfitsMap = {},
         bankProblemCountsMap = {},
-        bankBlockSumMap = {},
-        bankBlockCountsMap = {};
+        bankBlockCountsMap = {},
+        bankBlockSumMap = {};
 
     let totalPrices = 0,
         totalPricesCount = 0,
@@ -13,8 +13,8 @@ function processBankRecords(filteredRecordsDB1) {
         totalProfits = 0,
         totalProfitsCount = 0,
         totalProblemCount = 0,
-        totalBlockAmount = 0,
-        totalBlockCount = 0;
+        totalBlockCount = 0,
+        totalBlockAmount = 0;
 
     filteredRecordsDB1.forEach(record => {
         const bank = Array.isArray(record['Банк']) ? record['Банк'][0] : record['Банк'];
@@ -22,13 +22,7 @@ function processBankRecords(filteredRecordsDB1) {
         const price = parseFloat(record['Цена']);
         const profit = parseFloat(record['Профит']);
         const status = Array.isArray(record['Статус']) ? record['Статус'] : [record['Статус']];
-        const blockAmount = parseFloat(record['BLOCK']);
-
-        if (!isNaN(blockAmount)) {
-            bankBlockSumMap[method] = bankBlockSumMap[method] || {};
-            bankBlockSumMap[method][bank] = (bankBlockSumMap[method][bank] || 0) + blockAmount;
-            totalBlockAmount += blockAmount;
-        }
+        const blockAmount = parseFloat(record['BLOCK']) || 0;
 
         const isProblem = status.includes('проблема');
 
@@ -44,6 +38,9 @@ function processBankRecords(filteredRecordsDB1) {
 
             bankProfitsMap[method] = bankProfitsMap[method] || {};
             bankProfitsMap[method][bank] = bankProfitsMap[method][bank] || [];
+
+            bankBlockSumMap[method] = bankBlockSumMap[method] || {};
+            bankBlockSumMap[method][bank] = (bankBlockSumMap[method][bank] || 0);
 
             if (!isProblem) {
                 if (!isNaN(price)) {
@@ -73,6 +70,11 @@ function processBankRecords(filteredRecordsDB1) {
                 bankBlockCountsMap[method][bank] = (bankBlockCountsMap[method][bank] || 0) + 1;
                 totalBlockCount += 1;
             }
+
+            if (!isNaN(blockAmount)) {
+                bankBlockSumMap[method][bank] += blockAmount;
+                totalBlockAmount += blockAmount;
+            }
         }
     });
 
@@ -83,6 +85,7 @@ function processBankRecords(filteredRecordsDB1) {
         bankProfitsMap,
         bankProblemCountsMap,
         bankBlockCountsMap,
+        bankBlockSumMap,
         totalPrices,
         totalPricesCount,
         totalBanksCount,
@@ -90,7 +93,6 @@ function processBankRecords(filteredRecordsDB1) {
         totalProfitsCount,
         totalProblemCount,
         totalBlockCount,
-        bankBlockSumMap,
         totalBlockAmount
     };
 }
