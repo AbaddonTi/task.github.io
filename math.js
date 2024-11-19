@@ -64,14 +64,13 @@ function initializeSpreadsheetDB() {
         { row: 13, text: 'Сумма замороженных денег в проблемных картах' },
         { row: 14, text: 'Кол-во карт проблемных' },
         { row: 16, text: '% блока' },
-        { row: 17, text: '% блока от выручки' },
-        { row: 18, text: 'Сумма в блоки (заморозка)' },
-        { row: 19, text: 'Кол-во карт в блок' },
-        { row: 21, text: 'закуп карточки' }, 
-        { row: 22, text: '% парней с выручки на руки' },
-        { row: 23, text: 'ФОТ операторы' },
-        { row: 25, text: 'Итого: переменные косты на подподнаправления' },
-        { row: 26, text: 'DB 1' }
+        { row: 17, text: 'Сумма в блоки (заморозка)' },
+        { row: 18, text: 'Кол-во карт в блок' },
+        { row: 20, text: 'закуп карточки' },
+        { row: 21, text: '% парней с выручки на руки' },
+        { row: 22, text: 'ФОТ операторы' },
+        { row: 24, text: 'Итого: переменные косты на подподнаправления' },
+        { row: 25, text: 'DB 1' }
     ].forEach(({ row, text }) => setCellText(row, 0, text, 0));
 }
 
@@ -82,4 +81,3 @@ function renderUniqueBankValues(filteredRecordsDB1, filteredRecordsDB2) {
     renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }, exchangeRate); 
     s.reRender();
 }
-
