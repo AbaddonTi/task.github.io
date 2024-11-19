@@ -335,13 +335,13 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         if (!operation || excludedOperations.has(operation) || isNaN(sum)) {
             return;
         }
-
-        uniqueOperations.add(operation);
-
+        
         if (projectsToProcess.includes(project)) {
             addSum(operationSums, operation, project, sum);
+            uniqueOperations.add(operation);
         } else if (project === cashInProject && operation !== "Пересчёт кассы") {
             addSum(operationSums, operation, project, sum);
+            uniqueOperations.add(operation);
         }
     });
 
