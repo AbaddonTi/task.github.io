@@ -97,7 +97,7 @@ function processBankRecords(filteredRecordsDB1) {
     };
 }
 
-function renderBankData(bankData) {
+function renderBankData(bankData) { 
     const {
         bankMethodMap,
         bankPricesMap,
@@ -123,6 +123,13 @@ function renderBankData(bankData) {
     let colIndex = 1;
     const methodColIndexes = {};
 
+    function setCell(row, col, text, format) {
+        setCellText(row, col, text, 0);
+        if (format) {
+            setCellStyle(row, col, 'format', format);
+        }
+    }
+
     Object.keys(bankMethodMap).forEach(method => {
         const banks = Array.from(bankMethodMap[method]);
         const methodStartColIndex = colIndex;
@@ -130,11 +137,14 @@ function renderBankData(bankData) {
 
         methodColIndexes[method] = { start: methodStartColIndex, end: methodEndColIndex };
 
-        setCellText(2, methodStartColIndex, method, 0);
+        // Установка заголовка метода
+        setCell(2, methodStartColIndex, method);
         setCellBorder(2, methodStartColIndex, getBorderStyle('thick'));
+
         for (let i = methodStartColIndex; i <= methodEndColIndex; i++) {
             setCellBorder(3, i, getBorderStyle('thin'));
         }
+
         for (let i = methodStartColIndex; i <= methodEndColIndex; i++) {
             setCellBackgroundColor(0, i, '#d9ead3', 0);
         }
@@ -142,167 +152,114 @@ function renderBankData(bankData) {
         banks.forEach((bank, bankIndex) => {
             const bankColIndex = colIndex + bankIndex;
             const colLetter = String.fromCharCode(66 + bankColIndex - 1);
-            setCellText(3, bankColIndex, bank, 0);
 
-            const prices = bankPricesMap[method][bank];
-            if (prices && prices.length) {
-                const averagePrice = (prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2);
-                setCellText(6, bankColIndex, averagePrice, 0);
-                setCellStyle(6, bankColIndex, 'format', 'rub'); 
-            }
+            // Данные для установки ячеек
+            const cellData = [
+                { row: 3, text: bank },
+                { row: 6, text: calculateAverage(bankPricesMap[method][bank]), format: 'rub' },
+                { row: 7, text: bankCountsMap[method][bank] },
+                { row: 8, text: calculateAverage(bankProfitsMap[method][bank]), format: 'rub' },
+                { row: 10, text: `=${colLetter}8*${colLetter}9`, format: 'rub' },
+                { row: 12, text: `=${colLetter}15/${colLetter}8*100`, format: 'percent' },
+                { row: 13, text: `=${colLetter}7*${colLetter}15`, format: 'rub' },
+                { row: 14, text: bankProblemCountsMap[method]?.[bank] || 0 },
+                { row: 16, text: `=${colLetter}19/${colLetter}8*100`, format: 'percent' },
+                { row: 17, text: bankBlockSumMap[method]?.[bank]?.toFixed(2) || '0.00', format: 'rub' },
+                { row: 18, text: bankBlockCountsMap[method]?.[bank] || 0 },
+                { row: 20, text: `=${colLetter}7*${colLetter}8`, format: 'rub' },
+                { row: 21, text: '0', format: 'percent' },
+                { row: 22, text: `=(${colLetter}11-${colLetter}18)*${colLetter}22`, format: 'rub' },
+                { row: 24, text: `=${colLetter}14+${colLetter}18+${colLetter}21+${colLetter}23`, format: 'rub' },
+                { row: 25, text: `=${colLetter}11-${colLetter}25`, format: 'rub' },
+            ];
 
-            setCellText(7, bankColIndex, bankCountsMap[method][bank], 0);
-
-            const profits = bankProfitsMap[method][bank];
-            if (profits && profits.length) {
-                const averageProfit = (profits.reduce((a, b) => a + b, 0) / profits.length).toFixed(2);
-                setCellText(8, bankColIndex, averageProfit, 0);
-                setCellStyle(8, bankColIndex, 'format', 'rub'); 
-            }
-
-            setCellText(10, bankColIndex, `=${colLetter}8*${colLetter}9`, 0);
-            setCellStyle(10, bankColIndex, 'format', 'rub'); 
-
-            setCellText(12, bankColIndex, `=${colLetter}15/${colLetter}8*100`, 0);
-            setCellStyle(12, bankColIndex, 'format', 'percent'); 
-
-            setCellText(13, bankColIndex, `=${colLetter}7*${colLetter}15`, 0);
-            setCellStyle(13, bankColIndex, 'format', 'rub'); 
-
-            setCellText(14, bankColIndex, bankProblemCountsMap[method]?.[bank] || 0, 0);
-
-            setCellText(16, bankColIndex, `=${colLetter}19/${colLetter}8*100`, 0);
-            setCellStyle(16, bankColIndex, 'format', 'percent'); 
-
-            const blockSum = bankBlockSumMap[method]?.[bank]?.toFixed(2) || '0.00';
-            setCellText(17, bankColIndex, blockSum, 0);
-            setCellStyle(17, bankColIndex, 'format', 'rub');
-
-            setCellText(18, bankColIndex, bankBlockCountsMap[method]?.[bank] || 0, 0);
-
-            setCellText(20, bankColIndex, `=${colLetter}7*${colLetter}8`, 0);
-            setCellStyle(20, bankColIndex, 'format', 'rub'); 
-
-            setCellText(21, bankColIndex, '0', 0);
-            setCellStyle(21, bankColIndex, 'format', 'percent'); 
-
-            setCellText(22, bankColIndex, `=(${colLetter}11-${colLetter}18)*${colLetter}22`, 0);
-            setCellStyle(22, bankColIndex, 'format', 'rub'); 
-
-            setCellText(24, bankColIndex, `=${colLetter}14+${colLetter}18+${colLetter}21+${colLetter}23`, 0);
-            setCellStyle(24, bankColIndex, 'format', 'rub'); 
-
-            setCellText(25, bankColIndex, `=${colLetter}11-${colLetter}25`, 0);
-            setCellStyle(25, bankColIndex, 'format', 'rub');
+            // Установка ячеек для банка
+            cellData.forEach(({ row, text, format }) => {
+                setCell(row, bankColIndex, text, format);
+            });
         });
 
         const totalColIndex = colIndex + banks.length;
         const totalColLetter = String.fromCharCode(66 + totalColIndex - 1);
-        setCellText(2, totalColIndex, `Итого ${method}`, 0);
-        setCellBorder(2, totalColIndex, getBorderStyle('thick'), 0);
 
-        const bankColLetters = banks.map((_, index) => String.fromCharCode(66 + (colIndex + index) -1));
+        setCell(2, totalColIndex, `Итого ${method}`);
+        setCellBorder(2, totalColIndex, getBorderStyle('thick'));
 
-        setCellText(6, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '7').join(',')})`, 0);
-        setCellStyle(6, totalColIndex, 'format', 'rub'); 
+        const bankColLetters = banks.map((_, index) => String.fromCharCode(66 + (colIndex + index) - 1));
 
-        setCellText(7, totalColIndex, `=SUM(${bankColLetters.map(l => l + '8').join(',')})`, 0);
+        // Данные для установки ячеек итогов метода
+        const totalCellData = [
+            { row: 6, text: `=AVERAGE(${bankColLetters.map(l => l + '7').join(',')})`, format: 'rub' },
+            { row: 7, text: `=SUM(${bankColLetters.map(l => l + '8').join(',')})` },
+            { row: 8, text: `=AVERAGE(${bankColLetters.map(l => l + '9').join(',')})`, format: 'rub' },
+            { row: 10, text: `=SUM(${bankColLetters.map(l => l + '11').join(',')})`, format: 'rub' },
+            { row: 12, text: `=${totalColLetter}15/${totalColLetter}8*100`, format: 'percent' },
+            { row: 13, text: `=SUM(${bankColLetters.map(l => l + '14').join(',')})`, format: 'rub' },
+            { row: 14, text: `=SUM(${bankColLetters.map(l => l + '15').join(',')})` },
+            { row: 16, text: `=${totalColLetter}19/${totalColLetter}8*100`, format: 'percent' },
+            { row: 17, text: Object.values(bankBlockSumMap[method] || {}).reduce((a, b) => a + b, 0).toFixed(2), format: 'rub' },
+            { row: 18, text: `=SUM(${bankColLetters.map(l => l + '19').join(',')})` },
+            { row: 20, text: `=SUM(${bankColLetters.map(l => l + '21').join(',')})`, format: 'rub' },
+            { row: 21, text: `=AVERAGE(${bankColLetters.map(l => l + '22').join(',')})`, format: 'percent' },
+            { row: 22, text: `=SUM(${bankColLetters.map(l => l + '23').join(',')})`, format: 'rub' },
+            { row: 24, text: `=SUM(${bankColLetters.map(l => l + '25').join(',')})`, format: 'rub' },
+            { row: 25, text: `=${totalColLetter}11-${totalColLetter}25`, format: 'rub' },
+        ];
 
-        setCellText(8, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '9').join(',')})`, 0);
-        setCellStyle(8, totalColIndex, 'format', 'rub'); 
-
-        setCellText(10, totalColIndex, `=SUM(${bankColLetters.map(l => l + '11').join(',')})`, 0);
-        setCellStyle(10, totalColIndex, 'format', 'rub'); 
-
-        setCellText(12, totalColIndex, `=${totalColLetter}15/${totalColLetter}8*100`, 0);
-        setCellStyle(12, totalColIndex, 'format', 'percent'); 
-
-        setCellText(13, totalColIndex, `=SUM(${bankColLetters.map(l => l + '14').join(',')})`, 0);
-        setCellStyle(13, totalColIndex, 'format', 'rub'); 
-
-        setCellText(14, totalColIndex, `=SUM(${bankColLetters.map(l => l + '15').join(',')})`, 0);
-
-        setCellText(16, totalColIndex, `=${totalColLetter}19/${totalColLetter}8*100`, 0);
-        setCellStyle(16, totalColIndex, 'format', 'percent'); 
-
-        const methodBlockSum = Object.values(bankBlockSumMap[method] || {}).reduce((a, b) => a + b, 0).toFixed(2);
-        setCellText(17, totalColIndex, methodBlockSum, 0);
-        setCellStyle(17, totalColIndex, 'format', 'rub');
-
-        setCellText(18, totalColIndex, `=SUM(${bankColLetters.map(l => l + '19').join(',')})`, 0);
-
-        setCellText(20, totalColIndex, `=SUM(${bankColLetters.map(l => l + '21').join(',')})`, 0);
-        setCellStyle(20, totalColIndex, 'format', 'rub');
-
-        setCellText(21, totalColIndex, `=AVERAGE(${bankColLetters.map(l => l + '22').join(',')})`, 0);
-        setCellStyle(21, totalColIndex, 'format', 'percent'); 
-
-        setCellText(22, totalColIndex, `=SUM(${bankColLetters.map(l => l + '23').join(',')})`, 0);
-        setCellStyle(22, totalColIndex, 'format', 'rub'); 
-
-        setCellText(24, totalColIndex, `=SUM(${bankColLetters.map(l => l + '25').join(',')})`, 0);
-        setCellStyle(24, totalColIndex, 'format', 'rub'); 
-
-        setCellText(25, totalColIndex, `=${totalColLetter}11-${totalColLetter}25`, 0);
-        setCellStyle(25, totalColIndex, 'format', 'rub'); 
+        // Установка ячеек итогов метода
+        totalCellData.forEach(({ row, text, format }) => {
+            setCell(row, totalColIndex, text, format);
+        });
 
         colIndex = totalColIndex + 1;
     });
 
-    setCellText(0, colIndex, 'итого Процессинг', 0);
-    setCellBorder(0, colIndex, getBorderStyle('thick'), 0);
+    // Итоговые данные по процессингу
+    setCell(0, colIndex, 'итого Процессинг');
+    setCellBorder(0, colIndex, getBorderStyle('thick'));
     setCellBackgroundColor(0, colIndex, '#d9ead3', 0);
 
     const totalColLetter = String.fromCharCode(66 + colIndex - 1);
 
-    setCellText(6, colIndex, averagePrice, 0);
-    setCellStyle(6, colIndex, 'format', 'rub'); 
+    const processingCellData = [
+        { row: 6, text: averagePrice, format: 'rub' },
+        { row: 7, text: totalBanksCount },
+        { row: 8, text: averageProfit, format: 'rub' },
+        { row: 10, text: sumProfit, format: 'rub' },
+        { row: 12, text: `=${totalColLetter}15/${totalColLetter}8*100`, format: 'percent' },
+        { row: 13, text: `=${totalColLetter}7*${totalColLetter}15`, format: 'rub' },
+        { row: 14, text: totalProblemCount },
+        { row: 16, text: `=${totalColLetter}19/${totalColLetter}8*100`, format: 'percent' },
+        { row: 17, text: totalBlockAmount.toFixed(2), format: 'rub' },
+        { row: 18, text: totalBlockCount },
+        { row: 20, text: `=${totalColLetter}7*${totalColLetter}8`, format: 'rub' },
+        { row: 21, text: '0', format: 'percent' },
+        { row: 22, text: `=(${totalColLetter}11-${totalColLetter}18)*${totalColLetter}22`, format: 'rub' },
+        { row: 24, text: `=${totalColLetter}14+${totalColLetter}18+${totalColLetter}21+${totalColLetter}23`, format: 'rub' },
+        { row: 25, text: `=${totalColLetter}11-${totalColLetter}25`, format: 'rub' },
+    ];
 
-    setCellText(7, colIndex, totalBanksCount, 0);
+    // Установка итоговых ячеек процессинга
+    processingCellData.forEach(({ row, text, format }) => {
+        setCell(row, colIndex, text, format);
+    });
 
-    setCellText(8, colIndex, averageProfit, 0);
-    setCellStyle(8, colIndex, 'format', 'rub'); 
-
-    setCellText(10, colIndex, sumProfit, 0);
-    setCellStyle(10, colIndex, 'format', 'rub'); 
-
-    setCellText(12, colIndex, `=${totalColLetter}15/${totalColLetter}8*100`, 0);
-    setCellStyle(12, colIndex, 'format', 'percent'); 
-
-    setCellText(13, colIndex, `=${totalColLetter}7*${totalColLetter}15`, 0);
-    setCellStyle(13, colIndex, 'format', 'rub'); 
-
-    setCellText(14, colIndex, totalProblemCount, 0);
-
-    setCellText(16, colIndex, `=${totalColLetter}19/${totalColLetter}8*100`, 0);
-    setCellStyle(16, colIndex, 'format', 'percent');
-
-    setCellText(17, colIndex, totalBlockAmount.toFixed(2), 0);
-    setCellStyle(17, colIndex, 'format', 'rub');
-
-    setCellText(18, colIndex, totalBlockCount, 0);
-
-    setCellText(20, colIndex, `=${totalColLetter}7*${totalColLetter}8`, 0);
-    setCellStyle(20, colIndex, 'format', 'rub'); 
-
-    setCellText(21, colIndex, '0', 0);
-    setCellStyle(21, colIndex, 'format', 'percent');
-
-    setCellText(22, colIndex, `=(${totalColLetter}11-${totalColLetter}18)*${totalColLetter}22`, 0);
-    setCellStyle(22, colIndex, 'format', 'rub'); 
-
-    setCellText(24, colIndex, `=${totalColLetter}14+${totalColLetter}18+${totalColLetter}21+${totalColLetter}23`, 0);
-    setCellStyle(24, colIndex, 'format', 'rub');
-
-    setCellText(25, colIndex, `=${totalColLetter}11-${totalColLetter}25`, 0);
-    setCellStyle(25, colIndex, 'format', 'rub'); 
-
+    // Установка фона для итогового столбца
     for (let i = 1; i <= colIndex; i++) {
         setCellBackgroundColor(0, i, '#d9ead3', 0);
     }
 
     return { colIndex, methodColIndexes };
+
+    // Вспомогательная функция для вычисления среднего значения
+    function calculateAverage(values) {
+        if (values && values.length) {
+            return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2);
+        }
+        return '0.00';
+    }
 }
+
 
 function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }, exchangeRate) {
     const excludedOperations = new Set([
