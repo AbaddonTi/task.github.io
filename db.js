@@ -324,7 +324,22 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     });
 
     setCell(10, cashInColIndex, cashInRecountSum.toFixed(2), 'usd');
-    
+
+    // Установка текущего курса USD/RUB
+    setCell(currentRowIndex, 0, "Текущий курс USD/RUB:");
+    if (exchangeRate !== null) {
+        setCell(currentRowIndex, 1, exchangeRate.toFixed(2), 'rub');
+    } else {
+        console.warn('Exchange rate is not available for the рубль calculation.');
+    }
+
+    const exchangeRateRowIndexDB2 = currentRowIndex + 1;
+
+    // Умножаем сумму на курс и записываем в строку 25
+    const cashInColLetter = String.fromCharCode(65 + cashInColIndex);
+    if (exchangeRate !== null) {
+        setCell(25, cashInColIndex, `=${cashInColLetter}11*B${exchangeRateRowIndexDB2}`, 'rub');
+    }
 
     // Инициализация операций и сумм для DB2
     const uniqueOperationsDB2 = new Set();
@@ -380,34 +395,16 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     currentRowIndex++;
 
-    // Установка текущего курса USD/RUB
-    setCell(currentRowIndex, 0, "Текущий курс USD/RUB:");
-    if (exchangeRate !== null) {
-        setCell(currentRowIndex, 1, exchangeRate.toFixed(2), 'rub');
-    } else {
-        console.warn('Exchange rate is not available for the рубль calculation.');
-    }
-
-    const exchangeRateRowIndexDB2 = currentRowIndex + 1;
-
-
-    // Умножаем сумму на курс и записываем в строку 25
-    const cashInColLetter = String.fromCharCode(65 + cashInColIndex);
-    if (exchangeRate !== null) {
-        setCell(25, cashInColIndex, `=${cashInColLetter}11*B${exchangeRateRowIndexDB2}`, 'rub');
-    }
-
-
     // Итоги итогов
     const totalTotalsColIndex = cashInColIndex + 1;
     setCell(0, totalTotalsColIndex, "Итоги Итогов:");
     const totalProcessingColLetter = String.fromCharCode(65 + colIndex);
     setCell(25, totalTotalsColIndex, `=${totalProcessingColLetter}26+${cashInColLetter}26`, 'rub');
-    
+
     // Итоговые строки для DB2
     currentRowIndex++;
     setCell(currentRowIndex, 0, "₽ Итого: фикс косты на поднаправление");
-    
+
     // Устанавливаем значение 0 для 'Cash-In'
     setCell(currentRowIndex, cashInColIndex, 0, 'rub');
 
@@ -425,19 +422,21 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         const totalInRubles = totalSumsDB2['Итого'].toFixed(2);
         setCell(currentRowIndex, colIndex, totalInRubles, 'rub');
     }
-    
+
     const rubleSubTotalRowIndexDB2 = currentRowIndex + 1;
-    
+
     currentRowIndex++;
     setCell(currentRowIndex, 0, "₽ DB 2");
-    
+
+    // Определяем переменную totalColLetterDB2
+    const totalColLetterDB2 = String.fromCharCode(65 + colIndex);
+
     // Формула для 'Cash-In' столбца в '₽ DB 2'
     setCell(currentRowIndex, cashInColIndex, `=${cashInColLetter}26 - ${cashInColLetter}${rubleSubTotalRowIndexDB2}`, 'rub');
-    
+
     // Формула для 'Процессинг' столбца
     const db2Formula = `=${totalColLetterDB2}26 - ${totalColLetterDB2}${rubleSubTotalRowIndexDB2}`;
     setCell(currentRowIndex, colIndex, db2Formula, 'rub');
-
 
     // === Переход к DB3 ===
     currentRowIndex += 2;
@@ -532,7 +531,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     // Формулы для DB3
     const totalColLetterDB3 = String.fromCharCode(65 + colIndex);
-    const cashInColLetter = String.fromCharCode(65 + cashInColIndex);
+    // cashInColLetter уже определен ранее
 
     const db3FormulaProcessing = `=${totalColLetterDB3}${db3StartRowIndex - 1} - ${totalColLetterDB3}${rubleTotalRowIndexDB3}`;
     setCell(currentRowIndex, colIndex, db3FormulaProcessing, 'rub');
@@ -604,3 +603,4 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         }
     }
 }
+
