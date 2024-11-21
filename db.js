@@ -324,6 +324,12 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     });
 
     setCell(10, cashInColIndex, cashInRecountSum.toFixed(2), 'usd');
+    
+    // Умножаем сумму на курс и записываем в строку 25
+    const cashInColLetter = String.fromCharCode(65 + cashInColIndex);
+    if (exchangeRate !== null) {
+        setCell(25, cashInColIndex, `=${cashInColLetter}11*B${exchangeRateRowIndexDB2}`, 'rub');
+    }
 
     // Инициализация операций и сумм для DB2
     const uniqueOperationsDB2 = new Set();
@@ -392,13 +398,15 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     // Итоги итогов
     const totalTotalsColIndex = cashInColIndex + 1;
     setCell(0, totalTotalsColIndex, "Итоги Итогов:");
-
     const totalProcessingColLetter = String.fromCharCode(65 + colIndex);
-    setCell(25, totalTotalsColIndex, `=${totalProcessingColLetter}26`, 'rub');
-
+    setCell(25, totalTotalsColIndex, `=${totalProcessingColLetter}26+${cashInColLetter}26`, 'rub');
+    
     // Итоговые строки для DB2
     currentRowIndex++;
     setCell(currentRowIndex, 0, "₽ Итого: фикс косты на поднаправление");
+    
+    // Устанавливаем значение 0 для 'Cash-In'
+    setCell(currentRowIndex, cashInColIndex, 0, 'rub');
 
     if (exchangeRate !== null) {
         if (methodColIndexes['Переводы']) {
@@ -414,15 +422,19 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
         const totalInRubles = totalSumsDB2['Итого'].toFixed(2);
         setCell(currentRowIndex, colIndex, totalInRubles, 'rub');
     }
-
+    
     const rubleSubTotalRowIndexDB2 = currentRowIndex + 1;
-
+    
     currentRowIndex++;
     setCell(currentRowIndex, 0, "₽ DB 2");
-
-    const totalColLetterDB2 = String.fromCharCode(65 + colIndex);
+    
+    // Формула для 'Cash-In' столбца в '₽ DB 2'
+    setCell(currentRowIndex, cashInColIndex, `=${cashInColLetter}26 - ${cashInColLetter}${rubleSubTotalRowIndexDB2}`, 'rub');
+    
+    // Формула для 'Процессинг' столбца
     const db2Formula = `=${totalColLetterDB2}26 - ${totalColLetterDB2}${rubleSubTotalRowIndexDB2}`;
     setCell(currentRowIndex, colIndex, db2Formula, 'rub');
+
 
     // === Переход к DB3 ===
     currentRowIndex += 2;
