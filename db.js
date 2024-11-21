@@ -325,11 +325,6 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
 
     setCell(10, cashInColIndex, cashInRecountSum.toFixed(2), 'usd');
     
-    // Умножаем сумму на курс и записываем в строку 25
-    const cashInColLetter = String.fromCharCode(65 + cashInColIndex);
-    if (exchangeRate !== null) {
-        setCell(25, cashInColIndex, `=${cashInColLetter}11*B${exchangeRateRowIndexDB2}`, 'rub');
-    }
 
     // Инициализация операций и сумм для DB2
     const uniqueOperationsDB2 = new Set();
@@ -394,6 +389,14 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     }
 
     const exchangeRateRowIndexDB2 = currentRowIndex + 1;
+
+
+    // Умножаем сумму на курс и записываем в строку 25
+    const cashInColLetter = String.fromCharCode(65 + cashInColIndex);
+    if (exchangeRate !== null) {
+        setCell(25, cashInColIndex, `=${cashInColLetter}11*B${exchangeRateRowIndexDB2}`, 'rub');
+    }
+
 
     // Итоги итогов
     const totalTotalsColIndex = cashInColIndex + 1;
