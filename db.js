@@ -519,10 +519,10 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     const totalColLetterDB3 = String.fromCharCode(65 + colIndex);
     const cashInColLetter = String.fromCharCode(65 + cashInColIndex);
 
-    const db3FormulaProcessing = `=${totalColLetterDB3}${db3StartRowIndex} - ${totalColLetterDB3}${rubleTotalRowIndexDB3}`;
+    const db3FormulaProcessing = `=${totalColLetterDB3}${db3StartRowIndex - 1} - ${totalColLetterDB3}${rubleTotalRowIndexDB3}`;
     setCell(currentRowIndex, colIndex, db3FormulaProcessing, 'rub');
 
-    const db3FormulaCashIn = `=${cashInColLetter}${db3StartRowIndex} - ${cashInColLetter}${rubleTotalRowIndexDB3}`;
+    const db3FormulaCashIn = `=${cashInColLetter}${db3StartRowIndex - 1} - ${cashInColLetter}${rubleTotalRowIndexDB3}`;
     setCell(currentRowIndex, cashInColIndex, db3FormulaCashIn, 'rub');
 
     const db3FormulaTotal = `=${totalColLetterDB3}${currentRowIndex + 1}+${cashInColLetter}${currentRowIndex + 1}`;
