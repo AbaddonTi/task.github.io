@@ -170,6 +170,7 @@ function renderBankData(bankData) {
                 { row: 22, text: `=(${colLetter}11-${colLetter}18)*${colLetter}22`, format: 'rub' },
                 { row: 24, text: `=${colLetter}14+${colLetter}18+${colLetter}21+${colLetter}23`, format: 'rub' },
                 { row: 25, text: `=${colLetter}11-${colLetter}25`, format: 'rub' },
+                { row: 26, text: `=(${colLetter}11-${colLetter}24)/${colLetter}11`, format: 'percent' },
             ];
 
             cellData.forEach(({ row, text, format }) => {
@@ -201,6 +202,7 @@ function renderBankData(bankData) {
             { row: 22, text: `=SUM(${bankColLetters.map(l => l + '23').join(',')})`, format: 'rub' },
             { row: 24, text: `=SUM(${bankColLetters.map(l => l + '25').join(',')})`, format: 'rub' },
             { row: 25, text: `=${totalColLetter}11-${totalColLetter}25`, format: 'rub' },
+            { row: 26, text: `=(${totalColLetter}11 - ${totalColLetter}24)/${totalColLetter}11`, format: 'percent' },
         ];
 
         totalCellData.forEach(({ row, text, format }) => {
@@ -232,6 +234,7 @@ function renderBankData(bankData) {
         { row: 22, text: `=(${totalColLetter}11-${totalColLetter}18)*${totalColLetter}22`, format: 'rub' },
         { row: 24, text: `=${totalColLetter}14+${totalColLetter}18+${totalColLetter}21+${totalColLetter}23`, format: 'rub' },
         { row: 25, text: `=${totalColLetter}11-${totalColLetter}25`, format: 'rub' },
+        { row: 26, text: `=(${totalColLetter}11 - ${totalColLetter}24)/${totalColLetter}11`, format: 'percent' },
     ];
 
     processingCellData.forEach(({ row, text, format }) => {
