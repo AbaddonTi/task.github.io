@@ -268,7 +268,7 @@ function renderOperationTypes(filteredRecordsDB2, { colIndex, methodColIndexes }
     const projectsToProcess = ['Процессинг//Переводы', 'Процессинг//Наличка'];
     const cashInProject = 'Cash-In//';
 
-    let currentRowIndex = 28; // Начальная строка для вывода данных
+    let currentRowIndex = 29; // Начальная строка для вывода данных
 
     // Инициализация сумм для DB2
     const totalSumsDB2 = { 'Процессинг//Переводы': 0, 'Процессинг//Наличка': 0, 'Итого': 0 };
