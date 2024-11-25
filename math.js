@@ -71,7 +71,7 @@ function initializeSpreadsheetDB() {
         { row: 22, text: 'ФОТ операторы' },
         { row: 24, text: 'Итого: переменные косты на подподнаправления' },
         { row: 25, text: 'DB 1' },
-        { row: 26, text: 'Рентабильность' }
+        { row: 26, text: 'Рентабельность' }
     ].forEach(({ row, text }) => setCellText(row, 0, text, 0));
 }
 
