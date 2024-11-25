@@ -70,7 +70,8 @@ function initializeSpreadsheetDB() {
         { row: 21, text: '% парней с выручки на руки' },
         { row: 22, text: 'ФОТ операторы' },
         { row: 24, text: 'Итого: переменные косты на подподнаправления' },
-        { row: 25, text: 'DB 1' }
+        { row: 25, text: 'DB 1' },
+        { row: 26, text: 'Рентабильность' }
     ].forEach(({ row, text }) => setCellText(row, 0, text, 0));
 }
 
